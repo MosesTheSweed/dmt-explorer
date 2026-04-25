@@ -1,0 +1,40 @@
+{
+  "app": {
+    "name": "DMT Explorer",
+    "tagline": "Bitcoin Digital Matter Theory"
+  },
+  "nav": {
+    "overview": "Overview",
+    "natDistribution": "NAT distribution",
+    "myPortfolio": "My portfolio",
+    "collections": "Collections",
+    "miners": "Miners",
+    "poolRankings": "Pool rankings",
+    "perBlock": "Per block",
+    "blocks": "Blocks",
+    "syncStatus": "Sync status"
+  },
+  "metrics": {
+    "currentBlock": "Current block",
+    "natThisBlock": "NAT this block",
+    "totalHolders": "Total holders",
+    "poolsEarning": "Pools earning",
+    "collections": "Collections",
+    "syncProgress": "Sync progress"
+  },
+  "common": {
+    "holders": "holders",
+    "loading": "Loading...",
+    "syncing": "Syncing...",
+    "notSynced": "Not yet synced",
+    "block": "Block",
+    "address": "Address",
+    "search": "Search address or ticker..."
+  },
+  "badges": {
+    "minerReward": "miner reward",
+    "collection": "collection",
+    "fungible": "fungible",
+    "nft": "NFT"
+  }
+}
