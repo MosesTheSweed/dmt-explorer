@@ -79,13 +79,8 @@ const TokenCard = ({ ticker, address }) => {
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <Typography variant="caption">
                     {holdersLen !== null ? `${Number(holdersLen).toLocaleString()} holders` : '—'}
+                    {deployment?.dt ? ` · ${deployment.dt === 'n' ? 'nonce' : deployment.dt === 'h' ? 'block height' : deployment.dt === 'b' ? 'bits' : deployment.dt}` : ''}
                 </Typography>
-                {deployment?.dt && (
-                    <Typography variant="caption">
-                        {holdersLen !== null ? `${Number(holdersLen).toLocaleString()} holders` : '—'}
-                        {deployment?.dt ? ` · ${deployment.dt === 'n' ? 'nonce' : deployment.dt === 'h' ? 'block height' : deployment.dt === 'b' ? 'bits' : deployment.dt}` : ''}
-                    </Typography>
-                )}
             </Box>
         </Paper>
     );
