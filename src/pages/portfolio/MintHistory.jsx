@@ -1,14 +1,108 @@
-import { useState } from 'react';
+import {useEffect, useState} from 'react';
 import { Box, Typography, Paper, CircularProgress, Chip, Divider } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import { useTracApi } from '../../hooks/useTracApi';
 import api from '../../api/tracApi';
+import NatcatRenderer from "../../components/tokens/NatcatRenderer.jsx";
+
+// const MintHistoryRow = ({ inscriptionId, index }) => {
+//     const { data: mint, loading } = useTracApi(
+//         () => api.getDmtMintHolder(inscriptionId), [inscriptionId]
+//     );
+//
+//     if (loading) return (
+//         <Box sx={{ px: 2, py: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
+//             <CircularProgress size={10} sx={{ color: 'primary.main' }} />
+//             <Typography variant="caption" sx={{ color: 'text.disabled', fontFamily: 'monospace', fontSize: '0.65rem' }}>
+//                 {inscriptionId.slice(0, 16)}...
+//             </Typography>
+//         </Box>
+//     );
+//
+//     if (!mint) return null;
+//
+//     const isCurrentOwner = mint.ownr === mint.prv;
+//     const date = mint.ts ? new Date(mint.ts * 1000).toLocaleDateString('en-US', {
+//         month: 'short', day: 'numeric', year: 'numeric'
+//     }) : null;
+//
+//     return (
+//         <Box>
+//             <Box sx={{
+//                 display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+//                 px: 2, py: 1,
+//                 cursor: 'pointer',
+//                 '&:hover': { backgroundColor: 'rgba(168,85,247,0.04)' },
+//             }}
+//                  onClick={() => window.open(`https://ordinals.com/inscription/${inscriptionId}`, '_blank')}
+//             >
+//                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+//                     <Typography variant="caption" sx={{
+//                         color: 'text.disabled', minWidth: 24, fontFamily: 'monospace'
+//                     }}>
+//                         {String(index + 1).padStart(2, '0')}
+//                     </Typography>
+//                     <Box>
+//                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+//                             <Chip label={mint.tick} size="small" sx={{
+//                                 height: 14, fontSize: '0.55rem',
+//                                 backgroundColor: 'var(--tint-purple-lg)',
+//                                 color: 'primary.light',
+//                             }} />
+//                             {mint.elem?.pat && (
+//                                 <Chip label={`pattern: ${mint.elem.pat}`} size="small" sx={{
+//                                     height: 14, fontSize: '0.55rem',
+//                                     backgroundColor: 'var(--tint-green-md)',
+//                                     color: 'success.main',
+//                                 }} />
+//                             )}
+//                             {!isCurrentOwner && (
+//                                 <Chip label="transferred" size="small" sx={{
+//                                     height: 14, fontSize: '0.55rem',
+//                                     backgroundColor: 'var(--tint-orange-md)',
+//                                     color: 'secondary.main',
+//                                 }} />
+//                             )}
+//                         </Box>
+//                         <Typography variant="caption" sx={{
+//                             color: 'text.disabled', fontSize: '0.65rem', display: 'block'
+//                         }}>
+//                             BTC block {mint.dmtblck?.toLocaleString()} · {date}
+//                         </Typography>
+//                     </Box>
+//                 </Box>
+//                 <Typography variant="caption" sx={{
+//                     fontFamily: 'monospace', color: 'text.disabled',
+//                     fontSize: '0.65rem',
+//                 }}>
+//                     #{mint.num?.toLocaleString()}
+//                 </Typography>
+//             </Box>
+//             <Divider sx={{ borderColor: 'var(--border-subtle)' }} />
+//         </Box>
+//     );
+// };
 
 const MintHistoryRow = ({ inscriptionId, index }) => {
     const { data: mint, loading } = useTracApi(
         () => api.getDmtMintHolder(inscriptionId), [inscriptionId]
     );
+    const [previewDismissed, setPreviewDismissed] = useState(false);
+
+    if (loading) return (
+        <Box sx={{ px: 2, py: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
+            <CircularProgress size={10} sx={{ color: 'primary.main' }} />
+            <Typography variant="caption" sx={{ color: 'text.disabled', fontFamily: 'monospace', fontSize: '0.65rem' }}>
+                {inscriptionId.slice(0, 16)}...
+            </Typography>
+        </Box>
+    );
+
+    if (!mint) return null;
+
+    const isNatcat = mint.tick === 'dmt-natcats';
+    const showPreview = isNatcat && !previewDismissed;
 
     if (loading) return (
         <Box sx={{ px: 2, py: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -30,8 +124,7 @@ const MintHistoryRow = ({ inscriptionId, index }) => {
         <Box>
             <Box sx={{
                 display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                px: 2, py: 1,
-                cursor: 'pointer',
+                px: 2, py: 1, cursor: 'pointer',
                 '&:hover': { backgroundColor: 'rgba(168,85,247,0.04)' },
             }}
                  onClick={() => window.open(`https://ordinals.com/inscription/${inscriptionId}`, '_blank')}
@@ -71,17 +164,46 @@ const MintHistoryRow = ({ inscriptionId, index }) => {
                         </Typography>
                     </Box>
                 </Box>
-                <Typography variant="caption" sx={{
-                    fontFamily: 'monospace', color: 'text.disabled',
-                    fontSize: '0.65rem',
-                }}>
-                    #{mint.num?.toLocaleString()}
-                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    {isNatcat && (
+                        <Box
+                            onClick={e => { e.stopPropagation(); setPreviewDismissed(v => !v); }}
+                            sx={{
+                                fontSize: '0.65rem', color: 'text.disabled', cursor: 'pointer',
+                                px: 0.75, py: 0.25, borderRadius: 0.5,
+                                border: '0.5px solid var(--border-subtle)',
+                                '&:hover': { color: 'primary.light', borderColor: 'primary.main' },
+                            }}
+                        >
+                            {showPreview ? 'hide' : 'art'}
+                        </Box>
+                    )}
+                    <Typography variant="caption" sx={{
+                        fontFamily: 'monospace', color: 'text.disabled', fontSize: '0.65rem',
+                    }}>
+                        #{mint.num?.toLocaleString()}
+                    </Typography>
+                </Box>
             </Box>
+
+            {showPreview && mint.tick === 'dmt-natcats' && mint.dmtblck && (
+                <Box sx={{ px: 2, pb: 1 }}>
+                    <NatcatRenderer blockNumber={mint.dmtblck} size={160} />
+                </Box>
+            )}
+            {showPreview && mint.tick !== 'dmt-natcats' && (
+                <Box sx={{ px: 2, pb: 1 }}>
+                    <Typography variant="caption" sx={{ color: 'text.disabled' }}>
+                        No renderer available for {mint.tick}
+                    </Typography>
+                </Box>
+            )}
+
             <Divider sx={{ borderColor: 'var(--border-subtle)' }} />
         </Box>
     );
 };
+
 const MintHistory = ({ address, modal = false }) => {
     const [expanded, setExpanded] = useState(true);
     const [visibleCount, setVisibleCount] = useState(20);
