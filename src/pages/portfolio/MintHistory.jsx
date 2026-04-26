@@ -82,8 +82,7 @@ const MintHistoryRow = ({ inscriptionId, index }) => {
         </Box>
     );
 };
-
-const MintHistory = ({ address }) => {
+const MintHistory = ({ address, modal = false }) => {
     const [expanded, setExpanded] = useState(true);
     const [visibleCount, setVisibleCount] = useState(20);
 
@@ -91,11 +90,43 @@ const MintHistory = ({ address }) => {
         () => api.getDmtMintWalletHistoricListLength(address), [address]
     );
     const { data: inscriptions, loading } = useTracApi(
-        () => expanded ? api.getDmtMintWalletHistoricList(address) : Promise.resolve(null),
-        [address, expanded]
+        () => (modal || expanded) ? api.getDmtMintWalletHistoricList(address) : Promise.resolve(null),
+        [address, expanded, modal]
     );
 
     if (!length || length === 0) return null;
+
+    const listContent = (
+        <Paper sx={{ overflow: 'hidden' }}>
+            {loading && (
+                <Box sx={{ p: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <CircularProgress size={14} sx={{ color: 'primary.main' }} />
+                    <Typography variant="body2">Loading mint history...</Typography>
+                </Box>
+            )}
+            {inscriptions && (
+                <>
+                    {inscriptions.slice(0, visibleCount).map((id, i) => (
+                        <MintHistoryRow key={id} inscriptionId={id} index={i} />
+                    ))}
+                    {visibleCount < inscriptions.length && (
+                        <Box
+                            onClick={() => setVisibleCount(v => v + 20)}
+                            sx={{
+                                p: 1.5, textAlign: 'center', cursor: 'pointer',
+                                color: 'primary.light', fontSize: '0.8rem',
+                                '&:hover': { backgroundColor: 'rgba(168,85,247,0.05)' },
+                            }}
+                        >
+                            Load more ({inscriptions.length - visibleCount} remaining)
+                        </Box>
+                    )}
+                </>
+            )}
+        </Paper>
+    );
+
+    if (modal) return listContent;
 
     return (
         <Box sx={{ mb: 3 }}>
@@ -122,36 +153,7 @@ const MintHistory = ({ address }) => {
                     : <ExpandMoreIcon sx={{ color: 'text.disabled', fontSize: 18 }} />
                 }
             </Box>
-
-            {expanded && (
-                <Paper sx={{ overflow: 'hidden' }}>
-                    {loading && (
-                        <Box sx={{ p: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <CircularProgress size={14} sx={{ color: 'primary.main' }} />
-                            <Typography variant="body2">Loading mint history...</Typography>
-                        </Box>
-                    )}
-                    {inscriptions && (
-                        <>
-                            {inscriptions.slice(0, visibleCount).map((id, i) => (
-                                <MintHistoryRow key={id} inscriptionId={id} index={i} />
-                            ))}
-                            {visibleCount < inscriptions.length && (
-                                <Box
-                                    onClick={() => setVisibleCount(v => v + 20)}
-                                    sx={{
-                                        p: 1.5, textAlign: 'center', cursor: 'pointer',
-                                        color: 'primary.light', fontSize: '0.8rem',
-                                        '&:hover': { backgroundColor: 'rgba(168,85,247,0.05)' },
-                                    }}
-                                >
-                                    Load more ({inscriptions.length - visibleCount} remaining)
-                                </Box>
-                            )}
-                        </>
-                    )}
-                </Paper>
-            )}
+            {expanded && listContent}
         </Box>
     );
 };

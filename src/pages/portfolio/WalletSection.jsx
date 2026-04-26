@@ -178,7 +178,7 @@ const WalletSection = ({ label, address, pinned = [] }) => {
                     </IconButton>
                 </DialogTitle>
                 <DialogContent sx={{ p: 0, maxHeight: '60vh', overflowY: 'auto' }}>
-                    <MintHistory address={address} />
+                    <MintHistory address={address} modal />
                 </DialogContent>
             </Dialog>
         </Box>
