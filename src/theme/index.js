@@ -23,7 +23,11 @@ const theme = createTheme({
             disabled: '#6b5f8a',
         },
         divider: '#2e2845',
-        success: { main: '#4ade80' },
+        success: {
+            main: '#22c55e',
+            light: '#4ade80',
+            dark: '#16a34a',
+        },
         error: { main: '#f87171' },
         warning: { main: '#f97316' },
         info: { main: '#c084fc' },

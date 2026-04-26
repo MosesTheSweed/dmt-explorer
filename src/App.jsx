@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import AppShell from './components/layout/AppShell';
 import SyncStatus from './pages/SyncStatus';
-import Portfolio from "./pages/Portfolio.jsx";
+import Portfolio from './pages/portfolio/index.jsx';
 
 const PAGES = {
     sync: <SyncStatus />,

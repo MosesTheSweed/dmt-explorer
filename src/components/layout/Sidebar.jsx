@@ -13,6 +13,7 @@ const DRAWER_WIDTH = 220;
 const NAV_SECTIONS = [
     {
         groupKey: 'nav.overview',
+        accent: '#a855f7',
         items: [
             { key: 'nat', labelKey: 'nav.natDistribution', icon: <BarChartIcon fontSize="small" /> },
             { key: 'portfolio', labelKey: 'nav.myPortfolio', icon: <AccountBalanceWalletIcon fontSize="small" /> },
@@ -21,6 +22,7 @@ const NAV_SECTIONS = [
     },
     {
         groupKey: 'nav.collections',
+        accent: '#f97316',
         items: [
             { key: 'collections', labelKey: 'nav.collections', icon: <CollectionsIcon fontSize="small" /> },
             { key: 'blocks', labelKey: 'nav.blocks', icon: <GridViewIcon fontSize="small" /> },
@@ -28,6 +30,7 @@ const NAV_SECTIONS = [
     },
     {
         groupKey: 'nav.miners',
+        accent: '#22c55e',
         items: [
             { key: 'pools', labelKey: 'nav.poolRankings', icon: <MemoryIcon fontSize="small" /> },
             { key: 'perblock', labelKey: 'nav.perBlock', icon: <DashboardIcon fontSize="small" /> },
@@ -35,8 +38,11 @@ const NAV_SECTIONS = [
     },
 ];
 
-export default function Sidebar({ activePage, onNavigate }) {
+const Sidebar = ({ activePage, onNavigate }) => {
     const { t } = useTranslation();
+
+    const activeAccent = NAV_SECTIONS
+        .find(s => s.items.some(i => i.key === activePage))?.accent || '#a855f7';
 
     return (
         <Drawer
@@ -48,9 +54,20 @@ export default function Sidebar({ activePage, onNavigate }) {
             }}
         >
             <Box sx={{ px: 2, py: 2, borderBottom: '0.5px solid #2e2845' }}>
-                <Typography variant="h3" sx={{ color: 'text.primary' }}>
-                    DMT <span style={{ color: '#f97316' }}>Explorer</span>
-                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Typography variant="h3" sx={{ color: 'text.primary' }}>
+                        DMT <span style={{ color: '#f97316' }}>Explorer</span>
+                    </Typography>
+                    <Box sx={{
+                        width: 6,
+                        height: 6,
+                        borderRadius: '50%',
+                        backgroundColor: '#22c55e',
+                        boxShadow: '0 0 6px #22c55e',
+                        flexShrink: 0,
+                        mb: -0.5,
+                    }} />
+                </Box>
                 <Typography variant="caption">
                     {t('app.tagline')}
                 </Typography>
@@ -59,28 +76,54 @@ export default function Sidebar({ activePage, onNavigate }) {
             <Box sx={{ overflow: 'auto', pt: 1 }}>
                 {NAV_SECTIONS.map((section, si) => (
                     <Box key={si}>
-                        <Typography
-                            variant="overline"
-                            sx={{ px: 2, pt: 1.5, pb: 0.5, display: 'block' }}
-                        >
-                            {t(section.groupKey)}
-                        </Typography>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 2, pt: 1.5, pb: 0.5 }}>
+                            <Box sx={{
+                                width: 3,
+                                height: 3,
+                                borderRadius: '50%',
+                                backgroundColor: section.accent,
+                                flexShrink: 0,
+                            }} />
+                            <Typography variant="overline">
+                                {t(section.groupKey)}
+                            </Typography>
+                        </Box>
                         <List dense disablePadding>
                             {section.items.map((item) => (
                                 <ListItemButton
                                     key={item.key}
                                     selected={activePage === item.key}
                                     onClick={() => onNavigate(item.key)}
-                                    sx={{ pl: 2, py: 0.75 }}
+                                    sx={{
+                                        pl: 2,
+                                        py: 0.75,
+                                        borderLeft: activePage === item.key
+                                            ? `2px solid ${section.accent}`
+                                            : '2px solid transparent',
+                                        '&.Mui-selected': {
+                                            backgroundColor: `${section.accent}14`,
+                                            '&:hover': {
+                                                backgroundColor: `${section.accent}20`,
+                                            },
+                                        },
+                                        '&:hover': {
+                                            backgroundColor: `${section.accent}0a`,
+                                        },
+                                    }}
                                 >
-                                    <ListItemIcon sx={{ minWidth: 32, color: activePage === item.key ? 'primary.main' : 'text.disabled' }}>
+                                    <ListItemIcon sx={{
+                                        minWidth: 32,
+                                        color: activePage === item.key ? section.accent : 'text.disabled',
+                                    }}>
                                         {item.icon}
                                     </ListItemIcon>
                                     <ListItemText
                                         primary={t(item.labelKey)}
-                                        primaryTypographyProps={{
-                                            fontSize: '0.8125rem',
-                                            color: activePage === item.key ? 'text.primary' : 'text.secondary',
+                                        slotProps={{
+                                            primary: {
+                                                fontSize: '0.8125rem',
+                                                color: activePage === item.key ? 'text.primary' : 'text.secondary',
+                                            }
                                         }}
                                     />
                                 </ListItemButton>
@@ -90,8 +133,30 @@ export default function Sidebar({ activePage, onNavigate }) {
                     </Box>
                 ))}
             </Box>
+
+            <Box sx={{
+                mt: 'auto',
+                px: 2,
+                py: 1.5,
+                borderTop: '0.5px solid #2e2845',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1,
+            }}>
+                <Box sx={{
+                    width: 6,
+                    height: 6,
+                    borderRadius: '50%',
+                    backgroundColor: activeAccent,
+                    flexShrink: 0,
+                }} />
+                <Typography variant="caption" sx={{ color: 'text.disabled' }}>
+                    holmes node
+                </Typography>
+            </Box>
         </Drawer>
     );
-}
+};
 
+export default Sidebar;
 export { DRAWER_WIDTH };

@@ -1,14 +1,14 @@
-import { Box, Typography, LinearProgress, Paper, Chip } from '@mui/material';
+import { Box, Typography, Paper, Chip } from '@mui/material';
 import SyncIcon from '@mui/icons-material/Sync';
 import { useTranslation } from 'react-i18next';
 import { useTracApi } from '../hooks/useTracApi';
 import api from '../api/tracApi';
 
-export default function SyncStatus() {
+const SyncStatus = () => {
     const { t } = useTranslation();
     const { data: syncPct, loading, error } = useTracApi(() => api.getSyncStatus(), []);
 
-    const pct = syncPct !== null && syncPct !== undefined ? (syncPct * 100) : 0;
+    const isFullyCovered = syncPct !== null && syncPct !== undefined && syncPct >= 1.0;
 
     return (
         <Box>
@@ -18,31 +18,34 @@ export default function SyncStatus() {
             </Box>
 
             <Paper sx={{ p: 3, maxWidth: 480 }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                    <Typography variant="overline">{t('metrics.syncProgress')}</Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                    <Typography variant="overline">TAP protocol index ratio</Typography>
                     <Chip
-                        label={loading ? t('common.loading') : `${pct.toFixed(4)}%`}
+                        label={loading ? t('common.loading') : syncPct?.toFixed(4)}
                         size="small"
-                        color={pct > 50 ? 'success' : 'warning'}
+                        color={isFullyCovered ? 'success' : 'warning'}
                     />
                 </Box>
-                <LinearProgress
-                    variant={loading ? 'indeterminate' : 'determinate'}
-                    value={Math.min(pct, 100)}
-                    sx={{
-                        height: 8,
-                        borderRadius: 4,
-                        backgroundColor: '#2e2845',
-                        '& .MuiLinearProgress-bar': {
-                            background: 'linear-gradient(90deg, #7e22ce, #f97316)',
-                            borderRadius: 4,
-                        },
-                    }}
-                />
-                <Typography variant="body2" sx={{ mt: 2, color: 'text.secondary' }}>
-                    Holmes node syncing TAP protocol state from the Trac P2P network.
-                    Full sync required for complete data availability.
-                </Typography>
+
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}>
+                    <Typography variant="body2">
+                        <span style={{ color: '#b8a8cc' }}>Index ratio:</span>{' '}
+                        <span style={{ color: '#e8d5ff' }}>{syncPct?.toFixed(4)}</span>{' '}
+                        <span style={{ color: '#6b5f8a' }}>
+                            {isFullyCovered ? '— full coverage' : '— indexing in progress'}
+                        </span>
+                    </Typography>
+                    <Typography variant="body2">
+                        <span style={{ color: '#b8a8cc' }}>Raw Hypercore chunks:</span>{' '}
+                        <span style={{ color: '#e8d5ff' }}>~0.9% of 637M chunks</span>
+                    </Typography>
+                    <Typography variant="body2" sx={{ mt: 1, color: 'text.disabled', fontSize: '0.75rem' }}>
+                        The index ratio measures queryable TAP protocol state — values above 1.0
+                        indicate full coverage. Raw Hypercore chunk download is the underlying
+                        P2P data layer and is a separate metric.
+                    </Typography>
+                </Box>
+
                 {error && (
                     <Typography variant="body2" sx={{ mt: 1, color: 'error.main' }}>
                         {error}
@@ -51,4 +54,6 @@ export default function SyncStatus() {
             </Paper>
         </Box>
     );
-}
+};
+
+export default SyncStatus;
