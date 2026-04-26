@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import AppShell from './components/layout/AppShell';
 import SyncStatus from './pages/SyncStatus';
 import Portfolio from './pages/portfolio/index.jsx';
+import TokenDetail from "./components/tokens/TokenDetail.jsx";
 
 const App = () => (
     <BrowserRouter>
@@ -15,7 +16,7 @@ const App = () => (
                 <Route path="/blocks" element={<div style={{ color: '#9b8ab4' }}>Blocks — coming soon</div>} />
                 <Route path="/pools" element={<div style={{ color: '#9b8ab4' }}>Pool Rankings — coming soon</div>} />
                 <Route path="/perblock" element={<div style={{ color: '#9b8ab4' }}>Per Block — coming soon</div>} />
-                <Route path="/token/:ticker" element={<div style={{ color: '#9b8ab4' }}>Token Detail — coming soon</div>} />
+                <Route path="/token/:ticker" element={<TokenDetail />} />
                 <Route path="*" element={<Navigate to="/portfolio" replace />} />
             </Routes>
         </AppShell>

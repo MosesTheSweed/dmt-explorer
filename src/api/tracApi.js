@@ -36,6 +36,8 @@ const api = {
     getDmtEventByBlockLength: (block) => get(`/getDmtEventByBlockLength/${block}`),
     getCurrentBlock: () => get('/getCurrentBlock'),
     getReorgs: () => get('/getReorgs'),
+    getTransferable: (address, ticker) =>
+        get(`/getTransferable/${address}/${encodeURIComponent(ticker)}`),
 };
 
 export default api;
