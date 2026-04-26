@@ -1,11 +1,11 @@
 import { Box, Typography, Paper, Chip, CircularProgress } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 import { useTracApi } from '../../hooks/useTracApi';
 import api, { formatBalance } from '../../api/tracApi';
 
 const TokenCard = ({ ticker, address }) => {
-    const { data: deployment } = useTracApi(
-        () => api.getDeployment(ticker), [ticker]
-    );
+    const navigate = useNavigate();
+    const { data: deployment } = useTracApi(() => api.getDeployment(ticker), [ticker]);
     const { data: balance, loading } = useTracApi(
         () => api.getBalance(address, ticker), [address, ticker]
     );
@@ -24,7 +24,19 @@ const TokenCard = ({ ticker, address }) => {
         : null;
 
     return (
-        <Paper sx={{ p: 2, height: '100%' }}>
+        <Paper
+            onClick={() => navigate(`/token/${encodeURIComponent(ticker)}`)}
+            sx={{
+                p: 2,
+                height: '100%',
+                cursor: 'pointer',
+                transition: 'border-color 0.15s, background-color 0.15s',
+                '&:hover': {
+                    borderColor: '#a855f7',
+                    backgroundColor: 'rgba(168,85,247,0.05)',
+                },
+            }}
+        >
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
                 <Typography sx={{
                     fontFamily: 'monospace',

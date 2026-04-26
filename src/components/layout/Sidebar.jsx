@@ -7,6 +7,7 @@ import BarChartIcon from '@mui/icons-material/BarChart';
 import GridViewIcon from '@mui/icons-material/GridView';
 import SyncIcon from '@mui/icons-material/Sync';
 import { useTranslation } from 'react-i18next';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const DRAWER_WIDTH = 220;
 
@@ -15,34 +16,36 @@ const NAV_SECTIONS = [
         groupKey: 'nav.overview',
         accent: '#a855f7',
         items: [
-            { key: 'nat', labelKey: 'nav.natDistribution', icon: <BarChartIcon fontSize="small" /> },
-            { key: 'portfolio', labelKey: 'nav.myPortfolio', icon: <AccountBalanceWalletIcon fontSize="small" /> },
-            { key: 'sync', labelKey: 'nav.syncStatus', icon: <SyncIcon fontSize="small" /> },
+            { path: '/nat', labelKey: 'nav.natDistribution', icon: <BarChartIcon fontSize="small" /> },
+            { path: '/portfolio', labelKey: 'nav.myPortfolio', icon: <AccountBalanceWalletIcon fontSize="small" /> },
+            { path: '/sync', labelKey: 'nav.syncStatus', icon: <SyncIcon fontSize="small" /> },
         ],
     },
     {
         groupKey: 'nav.collections',
         accent: '#f97316',
         items: [
-            { key: 'collections', labelKey: 'nav.collections', icon: <CollectionsIcon fontSize="small" /> },
-            { key: 'blocks', labelKey: 'nav.blocks', icon: <GridViewIcon fontSize="small" /> },
+            { path: '/collections', labelKey: 'nav.collections', icon: <CollectionsIcon fontSize="small" /> },
+            { path: '/blocks', labelKey: 'nav.blocks', icon: <GridViewIcon fontSize="small" /> },
         ],
     },
     {
         groupKey: 'nav.miners',
         accent: '#22c55e',
         items: [
-            { key: 'pools', labelKey: 'nav.poolRankings', icon: <MemoryIcon fontSize="small" /> },
-            { key: 'perblock', labelKey: 'nav.perBlock', icon: <DashboardIcon fontSize="small" /> },
+            { path: '/pools', labelKey: 'nav.poolRankings', icon: <MemoryIcon fontSize="small" /> },
+            { path: '/perblock', labelKey: 'nav.perBlock', icon: <DashboardIcon fontSize="small" /> },
         ],
     },
 ];
 
-const Sidebar = ({ activePage, onNavigate }) => {
+const Sidebar = () => {
     const { t } = useTranslation();
+    const navigate = useNavigate();
+    const location = useLocation();
 
     const activeAccent = NAV_SECTIONS
-        .find(s => s.items.some(i => i.key === activePage))?.accent || '#a855f7';
+        .find(s => s.items.some(i => location.pathname.startsWith(i.path)))?.accent ?? '#a855f7';
 
     return (
         <Drawer
@@ -59,18 +62,13 @@ const Sidebar = ({ activePage, onNavigate }) => {
                         DMT <span style={{ color: '#f97316' }}>Explorer</span>
                     </Typography>
                     <Box sx={{
-                        width: 6,
-                        height: 6,
-                        borderRadius: '50%',
+                        width: 6, height: 6, borderRadius: '50%',
                         backgroundColor: '#22c55e',
                         boxShadow: '0 0 6px #22c55e',
-                        flexShrink: 0,
-                        mb: -0.5,
+                        flexShrink: 0, mb: -0.5,
                     }} />
                 </Box>
-                <Typography variant="caption">
-                    {t('app.tagline')}
-                </Typography>
+                <Typography variant="caption">{t('app.tagline')}</Typography>
             </Box>
 
             <Box sx={{ overflow: 'auto', pt: 1 }}>
@@ -78,56 +76,49 @@ const Sidebar = ({ activePage, onNavigate }) => {
                     <Box key={si}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 2, pt: 1.5, pb: 0.5 }}>
                             <Box sx={{
-                                width: 3,
-                                height: 3,
-                                borderRadius: '50%',
-                                backgroundColor: section.accent,
-                                flexShrink: 0,
+                                width: 3, height: 3, borderRadius: '50%',
+                                backgroundColor: section.accent, flexShrink: 0,
                             }} />
-                            <Typography variant="overline">
-                                {t(section.groupKey)}
-                            </Typography>
+                            <Typography variant="overline">{t(section.groupKey)}</Typography>
                         </Box>
                         <List dense disablePadding>
-                            {section.items.map((item) => (
-                                <ListItemButton
-                                    key={item.key}
-                                    selected={activePage === item.key}
-                                    onClick={() => onNavigate(item.key)}
-                                    sx={{
-                                        pl: 2,
-                                        py: 0.75,
-                                        borderLeft: activePage === item.key
-                                            ? `2px solid ${section.accent}`
-                                            : '2px solid transparent',
-                                        '&.Mui-selected': {
-                                            backgroundColor: `${section.accent}14`,
-                                            '&:hover': {
-                                                backgroundColor: `${section.accent}20`,
+                            {section.items.map((item) => {
+                                const isActive = location.pathname.startsWith(item.path);
+                                return (
+                                    <ListItemButton
+                                        key={item.path}
+                                        selected={isActive}
+                                        onClick={() => navigate(item.path)}
+                                        sx={{
+                                            pl: 2, py: 0.75,
+                                            borderLeft: isActive
+                                                ? `2px solid ${section.accent}`
+                                                : '2px solid transparent',
+                                            '&.Mui-selected': {
+                                                backgroundColor: `${section.accent}14`,
+                                                '&:hover': { backgroundColor: `${section.accent}20` },
                                             },
-                                        },
-                                        '&:hover': {
-                                            backgroundColor: `${section.accent}0a`,
-                                        },
-                                    }}
-                                >
-                                    <ListItemIcon sx={{
-                                        minWidth: 32,
-                                        color: activePage === item.key ? section.accent : 'text.disabled',
-                                    }}>
-                                        {item.icon}
-                                    </ListItemIcon>
-                                    <ListItemText
-                                        primary={t(item.labelKey)}
-                                        slotProps={{
-                                            primary: {
-                                                fontSize: '0.8125rem',
-                                                color: activePage === item.key ? 'text.primary' : 'text.secondary',
-                                            }
+                                            '&:hover': { backgroundColor: `${section.accent}0a` },
                                         }}
-                                    />
-                                </ListItemButton>
-                            ))}
+                                    >
+                                        <ListItemIcon sx={{
+                                            minWidth: 32,
+                                            color: isActive ? section.accent : 'text.disabled',
+                                        }}>
+                                            {item.icon}
+                                        </ListItemIcon>
+                                        <ListItemText
+                                            primary={t(item.labelKey)}
+                                            slotProps={{
+                                                primary: {
+                                                    fontSize: '0.8125rem',
+                                                    color: isActive ? 'text.primary' : 'text.secondary',
+                                                }
+                                            }}
+                                        />
+                                    </ListItemButton>
+                                );
+                            })}
                         </List>
                         {si < NAV_SECTIONS.length - 1 && <Divider sx={{ mt: 1 }} />}
                     </Box>
@@ -135,20 +126,13 @@ const Sidebar = ({ activePage, onNavigate }) => {
             </Box>
 
             <Box sx={{
-                mt: 'auto',
-                px: 2,
-                py: 1.5,
+                mt: 'auto', px: 2, py: 1.5,
                 borderTop: '0.5px solid #2e2845',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 1,
+                display: 'flex', alignItems: 'center', gap: 1,
             }}>
                 <Box sx={{
-                    width: 6,
-                    height: 6,
-                    borderRadius: '50%',
-                    backgroundColor: activeAccent,
-                    flexShrink: 0,
+                    width: 6, height: 6, borderRadius: '50%',
+                    backgroundColor: activeAccent, flexShrink: 0,
                 }} />
                 <Typography variant="caption" sx={{ color: 'text.disabled' }}>
                     holmes node
