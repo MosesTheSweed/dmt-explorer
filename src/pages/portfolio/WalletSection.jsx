@@ -7,13 +7,15 @@ import {
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CloseIcon from '@mui/icons-material/Close';
+import HistoryIcon from '@mui/icons-material/History';
+import MapIcon from '@mui/icons-material/Map';
 import { useTranslation } from 'react-i18next';
 import { useTracApi } from '../../hooks/useTracApi';
 import api from '../../api/tracApi';
 import TokenCard from '../../components/tokens/TokenCard';
 import WalletHeader from './WalletHeader.jsx';
 import MintHistory from './MintHistory.jsx';
-import HistoryIcon from '@mui/icons-material/History';
+import BitmapHistory from './BitmapHistory';
 import { PINNED_TOKENS } from './constants';
 
 const applyFilterAndSort = (tokens, filter, sort) => {
@@ -38,6 +40,10 @@ const WalletSection = ({ label, address, pinned = [] }) => {
     const [filter, setFilter] = useState('all');
     const [sort, setSort] = useState('dmt-first');
     const [historyOpen, setHistoryOpen] = useState(false);
+    const [bitmapOpen, setBitmapOpen] = useState(false);
+    const { data: bitmapCount } = useTracApi(
+        () => api.getBitmapWalletHistoricListLength(address), [address]
+    );
     const { t } = useTranslation();
 
     const { data: mintCount } = useTracApi(
@@ -81,6 +87,21 @@ const WalletSection = ({ label, address, pinned = [] }) => {
                                 backgroundColor: 'var(--tint-purple-xl) !important',
                                 borderColor: 'primary.light',
                             },
+                        }}
+                    />
+                )}
+                {bitmapCount > 0 && (
+                    <Chip
+                        icon={<MapIcon sx={{ fontSize: '12px !important' }} />}
+                        label={`${bitmapCount} bitmaps`}
+                        size="small"
+                        onClick={() => setBitmapOpen(true)}
+                        sx={{
+                            height: 18, fontSize: '0.65rem', cursor: 'pointer',
+                            backgroundColor: 'var(--tint-orange-md)',
+                            color: 'secondary.main',
+                            border: '0.5px solid rgba(249,115,22,0.3)',
+                            '&:hover': { backgroundColor: 'var(--tint-orange-lg)' },
                         }}
                     />
                 )}
@@ -179,6 +200,41 @@ const WalletSection = ({ label, address, pinned = [] }) => {
                 </DialogTitle>
                 <DialogContent sx={{ p: 0, maxHeight: '60vh', overflowY: 'auto' }}>
                     <MintHistory address={address} modal />
+                </DialogContent>
+            </Dialog>
+            <Dialog
+                open={bitmapOpen}
+                onClose={() => setBitmapOpen(false)}
+                maxWidth="sm"
+                fullWidth
+                slotProps={{
+                    paper: {
+                        sx: {
+                            backgroundColor: 'background.paper',
+                            border: '0.5px solid var(--border-subtle)',
+                            backgroundImage: 'none',
+                        }
+                    }
+                }}
+            >
+                <DialogTitle sx={{
+                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                    borderBottom: '0.5px solid var(--border-subtle)', pb: 1.5,
+                }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Typography variant="h3">Bitmap history</Typography>
+                        <Chip label={bitmapCount} size="small" sx={{
+                            height: 18, fontSize: '0.65rem',
+                            backgroundColor: 'var(--tint-orange-md)',
+                            color: 'secondary.main',
+                        }} />
+                    </Box>
+                    <IconButton size="small" onClick={() => setBitmapOpen(false)} sx={{ color: 'text.disabled' }}>
+                        <CloseIcon sx={{ fontSize: 14 }} />
+                    </IconButton>
+                </DialogTitle>
+                <DialogContent sx={{ p: 0, maxHeight: '60vh', overflowY: 'auto' }}>
+                    <BitmapHistory address={address} modal />
                 </DialogContent>
             </Dialog>
         </Box>

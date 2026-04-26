@@ -58,6 +58,9 @@ const api = {
     getReorgs: () => get('/getReorgs'),
     getTransferable: (address, ticker) =>
         get(`/getTransferable/${address}/${encodeURIComponent(ticker)}`),
+    getBitmapByInscription: (inscriptionId) => get(`/getBitmapByInscription/${inscriptionId}`),
+    getBitmapWalletHistoricList: (address) => get(`/getBitmapWalletHistoricList/${address}`),
+    getBitmapWalletHistoricListLength: (address) => get(`/getBitmapWalletHistoricListLength/${address}`),
 };
 
 export default api;
