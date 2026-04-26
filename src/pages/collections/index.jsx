@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import {
     Box, Typography, Paper, Grid, Chip,
-    CircularProgress, TextField, InputAdornment
+    CircularProgress, TextField, InputAdornment, ToggleButtonGroup, ToggleButton
 } from '@mui/material';
 import CollectionsIcon from '@mui/icons-material/Collections';
 import SearchIcon from '@mui/icons-material/Search';
@@ -139,6 +139,7 @@ const Collections = () => {
     const { t } = useTranslation();
     const [search, setSearch] = useState('');
     const [visibleCount, setVisibleCount] = useState(48);
+    const [sort, setSort] = useState('default');
 
     const { data: elements, loading: elementsLoading } = useTracApi(
         () => api.getDmtElementsList(), []
@@ -152,7 +153,13 @@ const Collections = () => {
         !search || ticker.toLowerCase().includes(search.toLowerCase())
     );
 
-    const visibleTickers = filteredTickers.slice(0, visibleCount);
+    const sortedTickers = [...filteredTickers].sort((a, b) => {
+        if (sort === 'az') return a.localeCompare(b);
+        if (sort === 'za') return b.localeCompare(a);
+        return 0;
+    });
+
+    const visibleTickers = sortedTickers.slice(0, visibleCount);
 
     const handleSearch = (e) => {
         setSearch(e.target.value);
@@ -203,6 +210,33 @@ const Collections = () => {
                         },
                     }}
                 />
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Typography variant="caption" sx={{ color: 'text.disabled' }}>Sort:</Typography>
+                    <ToggleButtonGroup
+                        value={sort}
+                        exclusive
+                        onChange={(_, val) => val && setSort(val)}
+                        size="small"
+                    >
+                        {[
+                            { value: 'default', label: 'Default' },
+                            { value: 'az', label: 'A–Z' },
+                            { value: 'za', label: 'Z–A' },
+                        ].map(opt => (
+                            <ToggleButton key={opt.value} value={opt.value} sx={{
+                                py: 0.25, px: 1, fontSize: '0.7rem',
+                                color: 'text.secondary', borderColor: '#2e2845',
+                                '&.Mui-selected': {
+                                    backgroundColor: 'rgba(249,115,22,0.15)',
+                                    color: 'secondary.main',
+                                    borderColor: '#f97316',
+                                },
+                            }}>
+                                {opt.label}
+                            </ToggleButton>
+                        ))}
+                    </ToggleButtonGroup>
+                </Box>
                 {filteredTickers.length > 0 && (
                     <Typography variant="caption" sx={{ color: 'text.disabled' }}>
                         {visibleTickers.length} of {filteredTickers.length} shown
@@ -233,7 +267,7 @@ const Collections = () => {
                         </Grid>
                     ))}
 
-                    {visibleCount < filteredTickers.length && (
+                    {visibleCount < sortedTickers.length && (
                         <Grid xs={12}>
                             <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
                                 <Box
@@ -252,7 +286,7 @@ const Collections = () => {
                                         },
                                     }}
                                 >
-                                    Load more ({filteredTickers.length - visibleCount} remaining)
+                                    Load more ({sortedTickers.length - visibleCount} remaining)
                                 </Box>
                             </Box>
                         </Grid>

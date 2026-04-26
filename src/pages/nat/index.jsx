@@ -1,7 +1,7 @@
 import {useState} from 'react';
 import {
     Box, Typography, Paper, Grid, Chip,
-    CircularProgress, Divider
+    CircularProgress, Divider, TextField
 } from '@mui/material';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import {useNavigate} from 'react-router-dom';
@@ -173,99 +173,158 @@ const RecentBlockEvents = ({block}) => {
         </Box>
     );
 };
+const SIGNIFICANT_BLOCKS = [
+    { block: 885588, label: 'Activation' },
+    { block: 885590, label: 'First batch' },
+];
+
+const MAX_HISTORY = 4;
+
+const loadHistory = () => {
+    try {
+        return JSON.parse(localStorage.getItem('nat-block-history') || '[]');
+    } catch { return []; }
+};
+
+const saveHistory = (block, current) => {
+    const updated = [block, ...current.filter(b => b !== block)].slice(0, MAX_HISTORY);
+    try { localStorage.setItem('nat-block-history', JSON.stringify(updated)); } catch {}
+    return updated;
+};
 
 const NatDistribution = () => {
-    const [inputBlock, setInputBlock] = useState('885590');
-    const {data: currentBlock} = useTracApi(() => api.getCurrentBlock(), []);
-    const {data: deployment} = useTracApi(() => api.getDeployment('dmt-nat'), []);
-    const {data: holdersLen} = useTracApi(() => api.getHoldersLength('dmt-nat'), []);
-
+    const [inputBlock, setInputBlock] = useState('');
     const [selectedBlock, setSelectedBlock] = useState(885590);
+    const [history, setHistory] = useState(loadHistory);
+
+    const { data: currentBlock } = useTracApi(() => api.getCurrentBlock(), []);
+    const { data: holdersLen } = useTracApi(() => api.getHoldersLength('dmt-nat'), []);
 
     const blocksSinceActivation = currentBlock
         ? currentBlock - NAT_ACTIVATION_BLOCK
         : null;
 
+    const handleSelectBlock = (block) => {
+        setSelectedBlock(block);
+        setInputBlock(String(block));
+        setHistory(prev => saveHistory(block, prev));
+    };
+
+    const handleSearch = () => {
+        const block = Number(inputBlock);
+        if (block > 0) handleSelectBlock(block);
+    };
+
     return (
         <Box>
-            <Box sx={{display: 'flex', alignItems: 'center', gap: 1, mb: 3}}>
-                <BarChartIcon sx={{color: 'primary.main'}}/>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
+                <BarChartIcon sx={{ color: 'primary.main' }} />
                 <Typography variant="h2">NAT distribution</Typography>
                 <Chip label="post-885,588" size="small" sx={{
                     backgroundColor: 'rgba(249,115,22,0.12)',
                     color: 'secondary.main', fontSize: '0.7rem',
-                }}/>
+                }} />
             </Box>
 
-            {/* Stats row */}
-            <Grid container spacing={1.5} sx={{mb: 3}}>
+            <Grid container spacing={1.5} sx={{ mb: 3 }}>
                 <Grid xs={6} sm={3}>
-                    <StatCard
-                        label="Current block"
-                        value={currentBlock?.toLocaleString()}
-                        color="secondary.main"
-                    />
+                    <StatCard label="Current block" value={currentBlock?.toLocaleString()} color="secondary.main" />
                 </Grid>
                 <Grid xs={6} sm={3}>
-                    <StatCard
-                        label="Blocks since activation"
-                        value={blocksSinceActivation?.toLocaleString()}
-                        color="primary.light"
-                    />
+                    <StatCard label="Blocks since activation" value={blocksSinceActivation?.toLocaleString()} color="primary.light" />
                 </Grid>
                 <Grid xs={6} sm={3}>
-                    <StatCard
-                        label="DMT-NAT holders"
-                        value={holdersLen != null ? Number(holdersLen).toLocaleString() : null}
-                        color="success.main"
-                    />
+                    <StatCard label="DMT-NAT holders" value={holdersLen != null ? Number(holdersLen).toLocaleString() : null} color="success.main" />
                 </Grid>
                 <Grid xs={6} sm={3}>
-                    <StatCard
-                        label="Activation block"
-                        value="885,588"
-                    />
+                    <StatCard label="Activation block" value="885,588" />
                 </Grid>
             </Grid>
 
-            {/* Block selector */}
-            <Box sx={{mb: 2, display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap'}}>
+            <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
                 <Typography variant="h3">Block events</Typography>
-                <Box sx={{display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap'}}>
-                    {[885590, 885600, 885650, 885700].map(b => (
+                <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap' }}>
+
+                    {/* Significant blocks */}
+                    {SIGNIFICANT_BLOCKS.map(({ block, label }) => (
                         <Box
-                            key={b}
-                            onClick={() => {
-                                setSelectedBlock(b);
-                                setInputBlock(String(b));
-                            }}
+                            key={block}
+                            onClick={() => handleSelectBlock(block)}
                             sx={{
-                                px: 1.5, py: 0.5, borderRadius: 1,
-                                fontSize: '0.75rem', fontFamily: 'monospace', cursor: 'pointer',
-                                border: `0.5px solid ${selectedBlock === b ? '#a855f7' : '#2e2845'}`,
-                                backgroundColor: selectedBlock === b ? 'rgba(168,85,247,0.12)' : 'transparent',
-                                color: selectedBlock === b ? '#c084fc' : '#9b8ab4',
+                                px: 1.5, py: 0.5, borderRadius: 1, cursor: 'pointer',
+                                border: `0.5px solid ${selectedBlock === block ? '#f97316' : '#2e2845'}`,
+                                backgroundColor: selectedBlock === block ? 'rgba(249,115,22,0.12)' : 'transparent',
                             }}
                         >
-                            {b.toLocaleString()}
+                            <Typography variant="caption" sx={{
+                                fontFamily: 'monospace', display: 'block', lineHeight: 1.2,
+                                color: selectedBlock === block ? 'secondary.main' : 'text.secondary',
+                                fontSize: '0.7rem',
+                            }}>
+                                {label}
+                            </Typography>
+                            <Typography variant="caption" sx={{
+                                fontFamily: 'monospace',
+                                color: selectedBlock === block ? 'secondary.light' : 'text.disabled',
+                                fontSize: '0.65rem',
+                            }}>
+                                {block.toLocaleString()}
+                            </Typography>
                         </Box>
                     ))}
-                    <input
+
+                    {/* User history */}
+                    {history.filter(b => !SIGNIFICANT_BLOCKS.find(s => s.block === b)).map(block => (
+                        <Box
+                            key={block}
+                            onClick={() => handleSelectBlock(block)}
+                            sx={{
+                                px: 1.5, py: 0.5, borderRadius: 1, cursor: 'pointer',
+                                border: `0.5px solid ${selectedBlock === block ? '#a855f7' : '#2e2845'}`,
+                                backgroundColor: selectedBlock === block ? 'rgba(168,85,247,0.12)' : 'transparent',
+                            }}
+                        >
+                            <Typography variant="caption" sx={{
+                                fontFamily: 'monospace', display: 'block', lineHeight: 1.2,
+                                color: 'text.disabled', fontSize: '0.65rem',
+                            }}>
+                                recent
+                            </Typography>
+                            <Typography variant="caption" sx={{
+                                fontFamily: 'monospace',
+                                color: selectedBlock === block ? 'primary.light' : 'text.secondary',
+                                fontSize: '0.65rem',
+                            }}>
+                                {block.toLocaleString()}
+                            </Typography>
+                        </Box>
+                    ))}
+
+                    {/* Input */}
+                    <TextField
                         value={inputBlock}
                         onChange={e => setInputBlock(e.target.value)}
-                        onKeyDown={e => e.key === 'Enter' && setSelectedBlock(Number(inputBlock))}
+                        onKeyDown={e => e.key === 'Enter' && handleSearch()}
                         placeholder="enter block..."
-                        style={{
-                            background: '#1c1828', border: '0.5px solid #2e2845',
-                            borderRadius: 6, padding: '4px 10px',
-                            color: '#e8d5ff', fontSize: '0.75rem', fontFamily: 'monospace',
-                            width: 120, outline: 'none',
+                        size="small"
+                        sx={{
+                            width: 130,
+                            '& .MuiOutlinedInput-root': {
+                                backgroundColor: 'background.paper',
+                                '& fieldset': { borderColor: 'success.dark' },
+                                '&:hover fieldset': { borderColor: 'success.main' },
+                                '&.Mui-focused fieldset': { borderColor: 'success.main', borderWidth: 1 },
+                            },
+                            '& input': {
+                                color: 'text.primary', fontSize: '0.75rem',
+                                fontFamily: 'monospace', py: '4px', px: '10px',
+                            },
                         }}
                     />
                 </Box>
             </Box>
 
-            <RecentBlockEvents block={selectedBlock}/>
+            <RecentBlockEvents block={selectedBlock} />
         </Box>
     );
 };

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Box, Typography, TextField, InputAdornment } from '@mui/material';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import SearchIcon from '@mui/icons-material/Search';
@@ -8,8 +9,14 @@ import { DEFAULT_WALLETS, PINNED_TOKENS } from './constants';
 
 const Portfolio = () => {
     const { t } = useTranslation();
+    const [searchParams, setSearchParams] = useSearchParams();
+    const addressParam = searchParams.get('address');
     const [searchAddress, setSearchAddress] = useState('');
     const [searchedAddress, setSearchedAddress] = useState(null);
+
+    const activeAddress = searchedAddress || addressParam;
+    const isOwnWallet = Object.values(DEFAULT_WALLETS).includes(activeAddress);
+    const pageTitle = !activeAddress || isOwnWallet ? t('nav.myPortfolio') : 'Address lookup';
 
     const handleSearch = (e) => {
         if (e.key === 'Enter' && searchAddress.trim()) {
@@ -21,7 +28,21 @@ const Portfolio = () => {
         <Box>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
                 <AccountBalanceWalletIcon sx={{ color: 'secondary.main' }} />
-                <Typography variant="h2">{t('nav.myPortfolio')}</Typography>
+                <Typography variant="h2">{pageTitle}</Typography>
+                {activeAddress && !isOwnWallet && (
+                    <Box
+                        onClick={() => { setSearchedAddress(null); setSearchAddress(''); setSearchParams({}); }}
+                        sx={{
+                            display: 'flex', alignItems: 'center', gap: 0.5,
+                            cursor: 'pointer', mb: 2,
+                            color: 'text.disabled',
+                            '&:hover': { color: 'primary.light' },
+                            fontSize: '0.8rem',
+                        }}
+                    >
+                        <Typography variant="caption" sx={{ mt: 2, color: 'secondary.light'}}>← back to my portfolio</Typography>
+                    </Box>
+                )}
             </Box>
 
             <TextField
@@ -52,11 +73,11 @@ const Portfolio = () => {
                 }}
             />
 
-            {searchedAddress ? (
+            {activeAddress ? (
                 <WalletSection
-                    key={searchedAddress}
-                    label="Search result"
-                    address={searchedAddress}
+                    key={activeAddress}
+                    label="Address"
+                    address={activeAddress}
                     pinned={[]}
                 />
             ) : (
