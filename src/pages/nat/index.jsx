@@ -7,6 +7,7 @@ import BarChartIcon from '@mui/icons-material/BarChart';
 import {useNavigate} from 'react-router-dom';
 import {useTracApi} from '../../hooks/useTracApi';
 import api, {formatBalance} from '../../api/tracApi';
+import {identifyPool, shortenAddress} from "../../data/miningPool.js";
 
 const NAT_ACTIVATION_BLOCK = 885588;
 
@@ -24,6 +25,7 @@ const StatCard = ({label, value, color = 'text.primary'}) => (
 const BlockEventRow = ({event, index}) => {
     const navigate = useNavigate();
     const natVal = event.val ? BigInt(event.val).toLocaleString() : '—';
+    const poolName = identifyPool(event.ownr);
 
     return (
         <Box>
@@ -43,13 +45,21 @@ const BlockEventRow = ({event, index}) => {
                         {String(index + 1).padStart(2, '0')}
                     </Typography>
                     <Box sx={{minWidth: 0}}>
-                        <Typography variant="caption" sx={{
-                            fontFamily: 'monospace', color: 'text.secondary',
-                            display: 'block', overflow: 'hidden',
-                            textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                        }}>
-                            {event.ownr}
-                        </Typography>
+                        <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
+                            <Typography variant="caption" sx={{
+                                fontFamily: 'monospace', color: 'text.secondary',
+                                overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                            }}>
+                                {shortenAddress(event.ownr)}
+                            </Typography>
+                            {poolName && (
+                                <Chip label={poolName} size="small" sx={{
+                                    height: 14, fontSize: '0.55rem', flexShrink: 0,
+                                    backgroundColor: 'rgba(34,197,94,0.12)',
+                                    color: 'success.main',
+                                }}/>
+                            )}
+                        </Box>
                         <Box sx={{display: 'flex', gap: 1, mt: 0.25}}>
                             <Chip label={event.tick} size="small" sx={{
                                 height: 14, fontSize: '0.55rem',
