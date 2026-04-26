@@ -234,15 +234,35 @@ const TokenDetail = () => {
                     />
                 ))}
             </Grid>
-
             {/* Top holders */}
-            {holders && holders.length > 0 && (
-                <>
-                    <Typography variant="h3" sx={{ mb: 1.5 }}>Top holders</Typography>
-                    <Paper sx={{ overflow: 'hidden' }}>
-                        {holders.slice(0, 20).map((holder, i) => (
-                            <Box key={holder.address ?? i}>
-                                <Box sx={{
+            <Typography variant="h3" sx={{ mb: 1.5 }}>Top holders</Typography>
+            {!holders ? (
+                <Paper sx={{ p: 2 }}>
+                    <Typography variant="body2" sx={{ color: 'text.disabled' }}>
+                        Holder list unavailable — node may still be syncing this data.
+                        Try again as sync progresses.
+                    </Typography>
+                </Paper>
+            ) : holders.length === 0 ? (
+                <Paper sx={{ p: 2 }}>
+                    <Typography variant="body2" sx={{ color: 'text.disabled' }}>
+                        No holders found.
+                    </Typography>
+                </Paper>
+            ) : (
+                <Paper sx={{ overflow: 'hidden' }}>
+                    {holders
+                        .slice()
+                        .sort((a, b) => {
+                            const balA = BigInt(a.balance ?? a.amt ?? 0);
+                            const balB = BigInt(b.balance ?? b.amt ?? 0);
+                            return balB > balA ? 1 : balB < balA ? -1 : 0;
+                        })
+                        .slice(0, 50)
+                        .map((holder, i) => (
+                        <Box key={holder.address ?? i}>
+                            <Box
+                                sx={{
                                     display: 'flex',
                                     justifyContent: 'space-between',
                                     alignItems: 'center',
@@ -250,38 +270,37 @@ const TokenDetail = () => {
                                     py: 1,
                                     '&:hover': { backgroundColor: 'rgba(168,85,247,0.05)', cursor: 'pointer' },
                                 }}
-                                     onClick={() => navigate(`/portfolio?address=${holder.address}`)}
-                                >
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                                        <Typography variant="caption" sx={{
-                                            color: 'text.disabled',
-                                            minWidth: 24,
-                                            fontFamily: 'monospace',
-                                        }}>
-                                            {String(i + 1).padStart(2, '0')}
-                                        </Typography>
-                                        <Typography variant="caption" sx={{
-                                            fontFamily: 'monospace',
-                                            color: 'text.secondary',
-                                        }}>
-                                            {holder.address}
-                                        </Typography>
-                                    </Box>
+                                onClick={() => navigate(`/portfolio?address=${holder.address}`)}
+                            >
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                                    <Typography variant="caption" sx={{
+                                        color: 'text.disabled',
+                                        minWidth: 24,
+                                        fontFamily: 'monospace',
+                                    }}>
+                                        {String(i + 1).padStart(2, '0')}
+                                    </Typography>
                                     <Typography variant="caption" sx={{
                                         fontFamily: 'monospace',
-                                        color: 'primary.light',
-                                        fontWeight: 600,
+                                        color: 'text.secondary',
                                     }}>
-                                        {formatBalance(String(holder.balance ?? holder.amt ?? 0), dec)}
+                                        {holder.address}
                                     </Typography>
                                 </Box>
-                                {i < Math.min(holders.length, 20) - 1 && (
-                                    <Divider sx={{ borderColor: '#2e2845' }} />
-                                )}
+                                <Typography variant="caption" sx={{
+                                    fontFamily: 'monospace',
+                                    color: 'primary.light',
+                                    fontWeight: 600,
+                                }}>
+                                    {formatBalance(String(holder.balance ?? holder.amt ?? 0), dec)}
+                                </Typography>
                             </Box>
-                        ))}
-                    </Paper>
-                </>
+                            {i < Math.min(holders.length, 20) - 1 && (
+                                <Divider sx={{ borderColor: '#2e2845' }} />
+                            )}
+                        </Box>
+                    ))}
+                </Paper>
             )}
         </Box>
     );
