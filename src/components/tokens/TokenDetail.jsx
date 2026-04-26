@@ -344,6 +344,7 @@ const WalletBalanceRow = ({ label, address, ticker, dec }) => {
                 <Box sx={{
                     display: 'flex', justifyContent: 'space-between',
                     alignItems: 'center', mb: 1,
+                    gap: 1,
                 }}>
                     <Typography variant="overline" sx={{ display: 'block' }}>
                         {label}
@@ -356,7 +357,7 @@ const WalletBalanceRow = ({ label, address, ticker, dec }) => {
                             sx={{
                                 display: 'flex', alignItems: 'center', gap: 0.5,
                                 cursor: 'pointer',
-                                color: 'text.disabled',
+                                color: 'primary.light',
                                 fontSize: '0.65rem',
                                 px: 0.75, py: 0.25, borderRadius: 0.5,
                                 border: '0.5px solid var(--border-subtle)',
@@ -368,7 +369,7 @@ const WalletBalanceRow = ({ label, address, ticker, dec }) => {
                             }}
                         >
                             <CollectionsIcon sx={{ fontSize: 11 }} />
-                            <Typography variant="caption" sx={{ fontSize: '0.65rem' }}>
+                            <Typography variant="caption" sx={{ fontSize: '0.65rem', color: 'primary.light' }}>
                                 view gallery
                             </Typography>
                         </Box>

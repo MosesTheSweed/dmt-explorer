@@ -7,25 +7,9 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useTracApi } from '../../hooks/useTracApi';
 import api from '../../api/tracApi';
 import { getRenderer } from '../../data/collectionRenderers';
+import { classifyMint, currentRecord } from '../../data/mintHistory';
 
-const GalleryTile = ({ inscriptionId, ticker, renderer }) => {
-    const { data: mint, loading } = useTracApi(
-        () => api.getDmtMintHolder(inscriptionId), [inscriptionId]
-    );
-
-    if (loading) {
-        return (
-            <Paper sx={{
-                aspectRatio: '1', display: 'flex',
-                alignItems: 'center', justifyContent: 'center',
-            }}>
-                <CircularProgress size={16} sx={{ color: 'primary.main' }} />
-            </Paper>
-        );
-    }
-
-    if (!mint || mint.tick !== ticker) return null;
-
+const GalleryTile = ({ inscriptionId, mint, renderer }) => {
     const date = mint.ts ? new Date(mint.ts * 1000).toLocaleDateString('en-US', {
         month: 'short', day: 'numeric', year: 'numeric'
     }) : null;
@@ -98,9 +82,9 @@ const CollectionGallery = () => {
         [address, ticker]
     );
 
-    // Hydrate mints in batches so we can filter by ticker + ownership
-    // before rendering. We do this here (not in tiles) so the header
-    // counts are accurate.
+    // Hydrate via holder history — single source of truth.
+    // history[length-1] gives the current owner (equivalent to old getDmtMintHolder).
+    // Walking the array tells us whether `address` ever owned it.
     const [hydrated, setHydrated] = useState(null);
     const [hydrating, setHydrating] = useState(false);
 
@@ -112,15 +96,19 @@ const CollectionGallery = () => {
 
         Promise.all(
             unique.map(id =>
-                api.getDmtMintHolder(id)
-                    .then(m => ({ id, mint: m }))
-                    .catch(() => ({ id, mint: null }))
+                api.getDmtMintHoldersHistoryList(id)
+                    .then(history => ({ id, history }))
+                    .catch(() => ({ id, history: null }))
             )
         ).then(results => {
             if (cancelled) return;
-            const filtered = results.filter(({ mint }) =>
-                mint && mint.tick === ticker
-            );
+            // Filter to this collection up front
+            const filtered = results
+                .map(({ id, history }) => {
+                    const mint = currentRecord(history);
+                    return { id, history, mint };
+                })
+                .filter(({ mint }) => mint && mint.tick === ticker);
             setHydrated(filtered);
             setHydrating(false);
         });
@@ -159,10 +147,15 @@ const CollectionGallery = () => {
         );
     }
 
-    const ownedTiles = hydrated
-        ? hydrated.filter(({ mint }) => mint.ownr === address)
-        : null;
-    const ownedCount = ownedTiles?.length ?? null;
+    // Bucket
+    const buckets = hydrated ? {
+        owned: hydrated.filter(h => classifyMint(h.history, address) === 'owned'),
+        transferred: hydrated.filter(h => classifyMint(h.history, address) === 'transferred'),
+        lostRace: hydrated.filter(h => classifyMint(h.history, address) === 'lost-race'),
+    } : null;
+
+    const ownedCount = buckets?.owned.length ?? null;
+    const transferredCount = buckets?.transferred.length ?? null;
     const loading = mintsLoading || hydrating;
 
     return (
@@ -198,7 +191,7 @@ const CollectionGallery = () => {
                 {address}
             </Typography>
 
-            {/* Counts */}
+            {/* Counts — three columns now that we can compute "transferred" honestly */}
             <Box sx={{ display: 'flex', gap: 3, mb: 3 }}>
                 <Box>
                     <Typography variant="caption" sx={{
@@ -228,17 +221,33 @@ const CollectionGallery = () => {
                         inscriptions held
                     </Typography>
                 </Box>
+                {transferredCount !== null && transferredCount > 0 && (
+                    <Box>
+                        <Typography variant="caption" sx={{
+                            color: 'text.disabled', display: 'block',
+                            fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: 0.5,
+                        }}>
+                            Transferred away
+                        </Typography>
+                        <Typography variant="h3" sx={{ color: 'text.primary' }}>
+                            {transferredCount}
+                        </Typography>
+                        <Typography variant="caption" sx={{ color: 'text.disabled', fontSize: '0.65rem' }}>
+                            sold or sent
+                        </Typography>
+                    </Box>
+                )}
             </Box>
 
-            {/* Note about scope */}
             <Typography variant="caption" sx={{
                 color: 'text.disabled', display: 'block', mb: 3, fontSize: '0.65rem',
             }}>
-                Showing inscriptions you minted that you still own. Art purchased
-                on secondary won't appear here yet.
+                Showing inscriptions you minted that you still own.
+                {buckets?.lostRace.length > 0 && (
+                    <> ({buckets.lostRace.length} mint {buckets.lostRace.length === 1 ? 'attempt' : 'attempts'} lost a same-block race and {buckets.lostRace.length === 1 ? 'is' : 'are'} excluded.)</>
+                )}
             </Typography>
 
-            {/* Loading */}
             {loading && (
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <CircularProgress size={14} sx={{ color: 'primary.main' }} />
@@ -246,21 +255,19 @@ const CollectionGallery = () => {
                 </Box>
             )}
 
-            {/* Empty state */}
-            {!loading && ownedTiles && ownedTiles.length === 0 && (
+            {!loading && buckets && buckets.owned.length === 0 && (
                 <Typography variant="body2" sx={{ color: 'text.disabled' }}>
                     No {ticker} inscriptions currently owned at this address.
                 </Typography>
             )}
 
-            {/* Grid */}
-            {ownedTiles && ownedTiles.length > 0 && (
+            {buckets && buckets.owned.length > 0 && (
                 <Grid container spacing={1.5}>
-                    {ownedTiles.map(({ id }) => (
+                    {buckets.owned.map(({ id, mint }) => (
                         <Grid xs={6} sm={4} md={3} lg={2} key={id}>
                             <GalleryTile
                                 inscriptionId={id}
-                                ticker={ticker}
+                                mint={mint}
                                 renderer={renderer}
                             />
                         </Grid>

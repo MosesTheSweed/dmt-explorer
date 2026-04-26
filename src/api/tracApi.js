@@ -61,6 +61,10 @@ const api = {
     getBitmapByInscription: (inscriptionId) => get(`/getBitmapByInscription/${inscriptionId}`),
     getBitmapWalletHistoricList: (address) => get(`/getBitmapWalletHistoricList/${address}`),
     getBitmapWalletHistoricListLength: (address) => get(`/getBitmapWalletHistoricListLength/${address}`),
+    getDmtMintHoldersHistoryList: (inscriptionId) =>
+        get(`/getDmtMintHoldersHistoryList/${inscriptionId}`),
+    getDmtMintHoldersHistoryListLength: (inscriptionId) =>
+        get(`/getDmtMintHoldersHistoryListLength/${inscriptionId}`),
 };
 
 export default api;

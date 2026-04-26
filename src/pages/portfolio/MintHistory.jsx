@@ -8,23 +8,39 @@ import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import { useTracApi } from '../../hooks/useTracApi';
 import api from '../../api/tracApi';
 import { getRenderer } from '../../data/collectionRenderers';
+import { classifyMint, currentRecord } from '../../data/mintHistory';
 
-const MintHistoryRow = ({ inscriptionId, mint, index, address }) => {
+const STATUS_CHIPS = {
+    owned: null, // no chip for owned, it's the default
+    transferred: {
+        label: 'transferred',
+        bg: 'var(--tint-orange-md)',
+        color: 'secondary.main',
+    },
+    'lost-race': {
+        label: 'lost race',
+        bg: 'var(--tint-purple-sm)',
+        color: 'text.disabled',
+    },
+};
+
+const MintHistoryRow = ({ inscriptionId, mint, status, index, address }) => {
     const [previewDismissed, setPreviewDismissed] = useState(false);
 
-    const isCurrentOwner = mint.ownr === address;
     const renderer = getRenderer(mint.tick);
     const showPreview = !!renderer && !previewDismissed;
     const date = mint.ts ? new Date(mint.ts * 1000).toLocaleDateString('en-US', {
         month: 'short', day: 'numeric', year: 'numeric'
     }) : null;
+    const statusChip = STATUS_CHIPS[status];
+    const dimmed = status !== 'owned';
 
     return (
         <Box>
             <Box sx={{
                 display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                 px: 2, py: 1, cursor: 'pointer',
-                opacity: isCurrentOwner ? 1 : 0.4,
+                opacity: dimmed ? 0.4 : 1,
                 transition: 'opacity 0.15s',
                 '&:hover': {
                     backgroundColor: 'var(--tint-purple-xxs)',
@@ -53,11 +69,11 @@ const MintHistoryRow = ({ inscriptionId, mint, index, address }) => {
                                     color: 'success.main',
                                 }} />
                             )}
-                            {!isCurrentOwner && (
-                                <Chip label="not owned" size="small" sx={{
+                            {statusChip && (
+                                <Chip label={statusChip.label} size="small" sx={{
                                     height: 14, fontSize: '0.55rem',
-                                    backgroundColor: 'var(--tint-orange-md)',
-                                    color: 'secondary.main',
+                                    backgroundColor: statusChip.bg,
+                                    color: statusChip.color,
                                 }} />
                             )}
                         </Box>
@@ -91,7 +107,7 @@ const MintHistoryRow = ({ inscriptionId, mint, index, address }) => {
             </Box>
 
             {showPreview && renderer && mint.dmtblck && (
-                <Box sx={{ px: 2, pb: 1, opacity: isCurrentOwner ? 1 : 0.4 }}>
+                <Box sx={{ px: 2, pb: 1, opacity: dimmed ? 0.4 : 1 }}>
                     <renderer.component blockNumber={mint.dmtblck} size={160} />
                 </Box>
             )}
@@ -114,7 +130,7 @@ const MintHistory = ({ address, modal = false }) => {
         [address, expanded, modal]
     );
 
-    // Hydrate all mints so we can filter and count accurately
+    // Hydrate using holder history — gives us classification + current record in one call
     const [hydrated, setHydrated] = useState(null);
     const [hydrating, setHydrating] = useState(false);
 
@@ -126,46 +142,47 @@ const MintHistory = ({ address, modal = false }) => {
 
         Promise.all(
             unique.map(id =>
-                api.getDmtMintHolder(id)
-                    .then(m => ({ id, mint: m }))
-                    .catch(() => ({ id, mint: null }))
+                api.getDmtMintHoldersHistoryList(id)
+                    .then(history => ({ id, history }))
+                    .catch(() => ({ id, history: null }))
             )
         ).then(results => {
             if (cancelled) return;
-            setHydrated(results.filter(r => r.mint));
+            const enriched = results
+                .filter(r => r.history)
+                .map(({ id, history }) => ({
+                    id,
+                    history,
+                    mint: currentRecord(history),
+                    status: classifyMint(history, address),
+                }));
+            setHydrated(enriched);
             setHydrating(false);
         });
 
         return () => { cancelled = true; };
-    }, [inscriptions]);
+    }, [inscriptions, address]);
 
     if (!length || length === 0) return null;
 
-    const ownedCount = hydrated
-        ? hydrated.filter(({ mint }) => mint.ownr === address).length
-        : null;
-    const notOwnedCount = hydrated
-        ? hydrated.length - ownedCount
-        : null;
+    const counts = hydrated ? {
+        all: hydrated.length,
+        owned: hydrated.filter(h => h.status === 'owned').length,
+        transferred: hydrated.filter(h => h.status === 'transferred').length,
+        'lost-race': hydrated.filter(h => h.status === 'lost-race').length,
+    } : null;
 
     const visible = hydrated
-        ? hydrated.filter(({ mint }) => {
-            if (filter === 'owned') return mint.ownr === address;
-            if (filter === 'not-owned') return mint.ownr !== address;
-            return true;
-        })
+        ? (filter === 'all' ? hydrated : hydrated.filter(h => h.status === filter))
         : [];
-
-    // Reset visibleCount if it exceeds the filtered length
     const displayed = visible.slice(0, visibleCount);
     const loading = idsLoading || hydrating;
 
     const listContent = (
         <Box>
-            {/* Filter */}
-            {hydrated && (
+            {hydrated && counts && (
                 <Box sx={{
-                    display: 'flex', alignItems: 'center', gap: 1,
+                    display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap',
                     px: 2, py: 1.5,
                     borderBottom: '0.5px solid var(--border-subtle)',
                 }}>
@@ -179,9 +196,10 @@ const MintHistory = ({ address, modal = false }) => {
                         size="small"
                     >
                         {[
-                            { value: 'all', label: `All (${hydrated.length})` },
-                            { value: 'owned', label: `Owned (${ownedCount})` },
-                            { value: 'not-owned', label: `Not owned (${notOwnedCount})` },
+                            { value: 'all', label: `All (${counts.all})` },
+                            { value: 'owned', label: `Owned (${counts.owned})` },
+                            { value: 'transferred', label: `Transferred (${counts.transferred})` },
+                            { value: 'lost-race', label: `Lost races (${counts['lost-race']})` },
                         ].map(opt => (
                             <ToggleButton key={opt.value} value={opt.value} sx={{
                                 py: 0.25, px: 1, fontSize: '0.7rem',
@@ -199,7 +217,10 @@ const MintHistory = ({ address, modal = false }) => {
                 </Box>
             )}
 
-            <Paper sx={{ overflow: 'hidden', borderTop: 'none', borderTopLeftRadius: 0, borderTopRightRadius: 0 }}>
+            <Paper sx={{
+                overflow: 'hidden', borderTop: 'none',
+                borderTopLeftRadius: 0, borderTopRightRadius: 0,
+            }}>
                 {loading && (
                     <Box sx={{ p: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
                         <CircularProgress size={14} sx={{ color: 'primary.main' }} />
@@ -213,11 +234,12 @@ const MintHistory = ({ address, modal = false }) => {
                         </Typography>
                     </Box>
                 )}
-                {!loading && displayed.map(({ id, mint }, i) => (
+                {!loading && displayed.map(({ id, mint, status }, i) => (
                     <MintHistoryRow
                         key={id}
                         inscriptionId={id}
                         mint={mint}
+                        status={status}
                         index={i}
                         address={address}
                     />
