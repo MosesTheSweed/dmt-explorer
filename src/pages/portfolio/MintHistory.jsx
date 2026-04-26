@@ -1,27 +1,16 @@
-import { useState } from 'react';
-import { Box, Typography, Paper, CircularProgress, Chip, Divider } from '@mui/material';
+import { useState, useEffect } from 'react';
+import {
+    Box, Typography, Paper, CircularProgress, Chip, Divider,
+    ToggleButtonGroup, ToggleButton,
+} from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import { useTracApi } from '../../hooks/useTracApi';
 import api from '../../api/tracApi';
 import { getRenderer } from '../../data/collectionRenderers';
 
-const MintHistoryRow = ({ inscriptionId, index, address }) => {
-    const { data: mint, loading } = useTracApi(
-        () => api.getDmtMintHolder(inscriptionId), [inscriptionId]
-    );
+const MintHistoryRow = ({ inscriptionId, mint, index, address }) => {
     const [previewDismissed, setPreviewDismissed] = useState(false);
-
-    if (loading) return (
-        <Box sx={{ px: 2, py: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
-            <CircularProgress size={10} sx={{ color: 'primary.main' }} />
-            <Typography variant="caption" sx={{ color: 'text.disabled', fontFamily: 'monospace', fontSize: '0.65rem' }}>
-                {inscriptionId.slice(0, 16)}...
-            </Typography>
-        </Box>
-    );
-
-    if (!mint) return null;
 
     const isCurrentOwner = mint.ownr === address;
     const renderer = getRenderer(mint.tick);
@@ -115,53 +104,138 @@ const MintHistoryRow = ({ inscriptionId, index, address }) => {
 const MintHistory = ({ address, modal = false }) => {
     const [expanded, setExpanded] = useState(true);
     const [visibleCount, setVisibleCount] = useState(20);
+    const [filter, setFilter] = useState('owned');
 
     const { data: length } = useTracApi(
         () => api.getDmtMintWalletHistoricListLength(address), [address]
     );
-    const { data: inscriptions, loading } = useTracApi(
+    const { data: inscriptions, loading: idsLoading } = useTracApi(
         () => (modal || expanded) ? api.getDmtMintWalletHistoricList(address) : Promise.resolve(null),
         [address, expanded, modal]
     );
 
+    // Hydrate all mints so we can filter and count accurately
+    const [hydrated, setHydrated] = useState(null);
+    const [hydrating, setHydrating] = useState(false);
+
+    useEffect(() => {
+        if (!inscriptions) return;
+        const unique = [...new Set(inscriptions)];
+        let cancelled = false;
+        setHydrating(true);
+
+        Promise.all(
+            unique.map(id =>
+                api.getDmtMintHolder(id)
+                    .then(m => ({ id, mint: m }))
+                    .catch(() => ({ id, mint: null }))
+            )
+        ).then(results => {
+            if (cancelled) return;
+            setHydrated(results.filter(r => r.mint));
+            setHydrating(false);
+        });
+
+        return () => { cancelled = true; };
+    }, [inscriptions]);
+
     if (!length || length === 0) return null;
 
+    const ownedCount = hydrated
+        ? hydrated.filter(({ mint }) => mint.ownr === address).length
+        : null;
+    const notOwnedCount = hydrated
+        ? hydrated.length - ownedCount
+        : null;
+
+    const visible = hydrated
+        ? hydrated.filter(({ mint }) => {
+            if (filter === 'owned') return mint.ownr === address;
+            if (filter === 'not-owned') return mint.ownr !== address;
+            return true;
+        })
+        : [];
+
+    // Reset visibleCount if it exceeds the filtered length
+    const displayed = visible.slice(0, visibleCount);
+    const loading = idsLoading || hydrating;
+
     const listContent = (
-        <Paper sx={{ overflow: 'hidden' }}>
-            {loading && (
-                <Box sx={{ p: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <CircularProgress size={14} sx={{ color: 'primary.main' }} />
-                    <Typography variant="body2">Loading mint history...</Typography>
+        <Box>
+            {/* Filter */}
+            {hydrated && (
+                <Box sx={{
+                    display: 'flex', alignItems: 'center', gap: 1,
+                    px: 2, py: 1.5,
+                    borderBottom: '0.5px solid var(--border-subtle)',
+                }}>
+                    <Typography variant="caption" sx={{ color: 'text.disabled' }}>
+                        Show:
+                    </Typography>
+                    <ToggleButtonGroup
+                        value={filter}
+                        exclusive
+                        onChange={(_, v) => { if (v) { setFilter(v); setVisibleCount(20); } }}
+                        size="small"
+                    >
+                        {[
+                            { value: 'all', label: `All (${hydrated.length})` },
+                            { value: 'owned', label: `Owned (${ownedCount})` },
+                            { value: 'not-owned', label: `Not owned (${notOwnedCount})` },
+                        ].map(opt => (
+                            <ToggleButton key={opt.value} value={opt.value} sx={{
+                                py: 0.25, px: 1, fontSize: '0.7rem',
+                                color: 'text.secondary', borderColor: 'var(--border-subtle)',
+                                '&.Mui-selected': {
+                                    backgroundColor: 'var(--tint-purple-md) !important',
+                                    color: 'primary.light',
+                                    borderColor: 'primary.main',
+                                },
+                            }}>
+                                {opt.label}
+                            </ToggleButton>
+                        ))}
+                    </ToggleButtonGroup>
                 </Box>
             )}
-            {inscriptions && (() => {
-                const unique = [...new Set(inscriptions)];
-                return (
-                    <>
-                        {unique.slice(0, visibleCount).map((id, i) => (
-                            <MintHistoryRow
-                                key={id}
-                                inscriptionId={id}
-                                index={i}
-                                address={address}
-                            />
-                        ))}
-                        {visibleCount < unique.length && (
-                            <Box
-                                onClick={() => setVisibleCount(v => v + 20)}
-                                sx={{
-                                    p: 1.5, textAlign: 'center', cursor: 'pointer',
-                                    color: 'primary.light', fontSize: '0.8rem',
-                                    '&:hover': { backgroundColor: 'var(--tint-purple-xs)' },
-                                }}
-                            >
-                                Load more ({unique.length - visibleCount} remaining)
-                            </Box>
-                        )}
-                    </>
-                );
-            })()}
-        </Paper>
+
+            <Paper sx={{ overflow: 'hidden', borderTop: 'none', borderTopLeftRadius: 0, borderTopRightRadius: 0 }}>
+                {loading && (
+                    <Box sx={{ p: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <CircularProgress size={14} sx={{ color: 'primary.main' }} />
+                        <Typography variant="body2">Loading mint history...</Typography>
+                    </Box>
+                )}
+                {!loading && hydrated && visible.length === 0 && (
+                    <Box sx={{ p: 2 }}>
+                        <Typography variant="body2" sx={{ color: 'text.disabled' }}>
+                            No mints match the current filter.
+                        </Typography>
+                    </Box>
+                )}
+                {!loading && displayed.map(({ id, mint }, i) => (
+                    <MintHistoryRow
+                        key={id}
+                        inscriptionId={id}
+                        mint={mint}
+                        index={i}
+                        address={address}
+                    />
+                ))}
+                {!loading && visibleCount < visible.length && (
+                    <Box
+                        onClick={() => setVisibleCount(v => v + 20)}
+                        sx={{
+                            p: 1.5, textAlign: 'center', cursor: 'pointer',
+                            color: 'primary.light', fontSize: '0.8rem',
+                            '&:hover': { backgroundColor: 'var(--tint-purple-xs)' },
+                        }}
+                    >
+                        Load more ({visible.length - visibleCount} remaining)
+                    </Box>
+                )}
+            </Paper>
+        </Box>
     );
 
     if (modal) return listContent;

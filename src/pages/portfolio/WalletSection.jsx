@@ -16,6 +16,9 @@ import TokenCard from '../../components/tokens/TokenCard';
 import WalletHeader from './WalletHeader.jsx';
 import MintHistory from './MintHistory.jsx';
 import BitmapHistory from './BitmapHistory';
+import CollectionsIcon from '@mui/icons-material/Collections';
+import { useNavigate } from 'react-router-dom';
+import { getRenderer } from '../../data/collectionRenderers';
 import { PINNED_TOKENS } from './constants';
 
 const applyFilterAndSort = (tokens, filter, sort) => {
@@ -36,6 +39,9 @@ const applyFilterAndSort = (tokens, filter, sort) => {
 };
 
 const WalletSection = ({ label, address, pinned = [] }) => {
+    const navigate = useNavigate();
+    const { t } = useTranslation();
+    const [galleriesOpen, setGalleriesOpen] = useState(false);
     const [copied, setCopied] = useState(false);
     const [filter, setFilter] = useState('all');
     const [sort, setSort] = useState('dmt-first');
@@ -44,7 +50,6 @@ const WalletSection = ({ label, address, pinned = [] }) => {
     const { data: bitmapCount } = useTracApi(
         () => api.getBitmapWalletHistoricListLength(address), [address]
     );
-    const { t } = useTranslation();
 
     const { data: mintCount } = useTracApi(
         () => api.getDmtMintWalletHistoricListLength(address), [address]
@@ -58,6 +63,7 @@ const WalletSection = ({ label, address, pinned = [] }) => {
         ? [...new Set([...resolvedPinned, ...tokens])]
         : resolvedPinned.length > 0 ? resolvedPinned : null;
 
+    const galleryTokens = (allTokens ?? []).filter(t => getRenderer(t));
     const displayTokens = applyFilterAndSort(allTokens, filter, sort);
 
     const handleCopy = () => {
@@ -75,7 +81,7 @@ const WalletSection = ({ label, address, pinned = [] }) => {
                 {mintCount > 0 && (
                     <Chip
                         icon={<HistoryIcon sx={{ fontSize: '12px !important' }} />}
-                        label={`${mintCount} mints`}
+                        label={`${mintCount} ${mintCount === 1 ? 'mint' : 'mints'}`}
                         size="small"
                         onClick={() => setHistoryOpen(true)}
                         sx={{
@@ -93,7 +99,7 @@ const WalletSection = ({ label, address, pinned = [] }) => {
                 {bitmapCount > 0 && (
                     <Chip
                         icon={<MapIcon sx={{ fontSize: '12px !important' }} />}
-                        label={`${bitmapCount} bitmaps`}
+                        label={`${bitmapCount} ${bitmapCount === 1 ? 'bitmap' : 'bitmaps'}`}
                         size="small"
                         onClick={() => setBitmapOpen(true)}
                         sx={{
@@ -102,6 +108,23 @@ const WalletSection = ({ label, address, pinned = [] }) => {
                             color: 'secondary.main',
                             border: '0.5px solid rgba(249,115,22,0.3)',
                             '&:hover': { backgroundColor: 'var(--tint-orange-lg)' },
+                        }}
+                    />
+                )}
+                {galleryTokens.length > 0 && (
+                    <Chip
+                        icon={<CollectionsIcon sx={{ fontSize: '12px !important' }} />}
+                        label={`${galleryTokens.length} ${galleryTokens.length === 1 ? 'gallery' : 'galleries'}`}
+                        size="small"
+                        onClick={() => setGalleriesOpen(true)}
+                        sx={{
+                            height: 18, fontSize: '0.65rem', cursor: 'pointer',
+                            backgroundColor: 'var(--tint-green-md)',
+                            color: 'success.main',
+                            border: '0.5px solid rgba(34,197,94,0.3)',
+                            '&:hover': {
+                                backgroundColor: 'var(--tint-green-lg, var(--tint-green-md))',
+                            },
                         }}
                     />
                 )}
@@ -235,6 +258,66 @@ const WalletSection = ({ label, address, pinned = [] }) => {
                 </DialogTitle>
                 <DialogContent sx={{ p: 0, maxHeight: '60vh', overflowY: 'auto' }}>
                     <BitmapHistory address={address} modal />
+                </DialogContent>
+            </Dialog>
+            <Dialog
+                open={galleriesOpen}
+                onClose={() => setGalleriesOpen(false)}
+                maxWidth="xs"
+                fullWidth
+                slotProps={{
+                    paper: {
+                        sx: {
+                            backgroundColor: 'background.paper',
+                            border: '0.5px solid var(--border-subtle)',
+                            backgroundImage: 'none',
+                        }
+                    }
+                }}
+            >
+                <DialogTitle sx={{
+                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                    borderBottom: '0.5px solid var(--border-subtle)', pb: 1.5,
+                }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Typography variant="h3">Galleries</Typography>
+                        <Chip label={galleryTokens.length} size="small" sx={{
+                            height: 18, fontSize: '0.65rem',
+                            backgroundColor: 'var(--tint-green-md)',
+                            color: 'success.main',
+                        }} />
+                    </Box>
+                    <IconButton size="small" onClick={() => setGalleriesOpen(false)} sx={{ color: 'text.disabled' }}>
+                        <CloseIcon sx={{ fontSize: 14 }} />
+                    </IconButton>
+                </DialogTitle>
+                <DialogContent sx={{ p: 0 }}>
+                    {galleryTokens.map(ticker => (
+                        <Box
+                            key={ticker}
+                            onClick={() => {
+                                setGalleriesOpen(false);
+                                navigate(`/collection/${encodeURIComponent(ticker)}?address=${address}`);
+                            }}
+                            sx={{
+                                px: 2, py: 1.5, cursor: 'pointer',
+                                borderBottom: '0.5px solid var(--border-subtle)',
+                                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                                '&:hover': { backgroundColor: 'var(--tint-purple-xs)' },
+                                '&:last-child': { borderBottom: 'none' },
+                            }}
+                        >
+                            <Typography sx={{
+                                fontFamily: 'monospace', color: 'primary.light',
+                                fontSize: '0.8rem', fontWeight: 600,
+                            }}>
+                                {ticker}
+                            </Typography>
+                            <Typography variant="caption" sx={{ color: 'text.disabled' }}>
+                                view →
+                            </Typography>
+                        </Box>
+                    ))}
                 </DialogContent>
             </Dialog>
         </Box>

@@ -2,11 +2,13 @@ import { Box, Typography, Paper, Grid, Chip, CircularProgress, IconButton, Toolt
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import CollectionsIcon from '@mui/icons-material/Collections';
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTracApi } from '../../hooks/useTracApi';
 import api, { formatBalance } from '../../api/tracApi';
 import { DEFAULT_WALLETS} from "../../pages/portfolio/constants.js";
+import {getRenderer} from "../../data/collectionRenderers.js";
 
 const StatCard = ({ label, value, color = 'text.primary', mono = false }) => (
     <Paper sx={{ p: 2 }}>
@@ -317,6 +319,7 @@ const TokenDetail = () => {
 };
 
 const WalletBalanceRow = ({ label, address, ticker, dec }) => {
+    const navigate = useNavigate();
     const { data: balance, loading } = useTracApi(
         () => api.getBalance(address, ticker), [address, ticker]
     );
@@ -331,10 +334,46 @@ const WalletBalanceRow = ({ label, address, ticker, dec }) => {
         ? formatBalance(String(transferable), dec)
         : null;
 
+    const renderer = getRenderer(ticker);
+    const hasBalance = balance !== null && balance !== undefined && BigInt(balance) > 0n;
+    const showGalleryLink = renderer && hasBalance;
+
     return (
         <Grid xs={12} sm={6}>
             <Paper sx={{ p: 2 }}>
-                <Typography variant="overline" sx={{ display: 'block', mb: 1 }}>{label}</Typography>
+                <Box sx={{
+                    display: 'flex', justifyContent: 'space-between',
+                    alignItems: 'center', mb: 1,
+                }}>
+                    <Typography variant="overline" sx={{ display: 'block' }}>
+                        {label}
+                    </Typography>
+                    {showGalleryLink && (
+                        <Box
+                            onClick={() => navigate(
+                                `/collection/${encodeURIComponent(ticker)}?address=${address}`
+                            )}
+                            sx={{
+                                display: 'flex', alignItems: 'center', gap: 0.5,
+                                cursor: 'pointer',
+                                color: 'text.disabled',
+                                fontSize: '0.65rem',
+                                px: 0.75, py: 0.25, borderRadius: 0.5,
+                                border: '0.5px solid var(--border-subtle)',
+                                transition: 'color 0.15s, border-color 0.15s',
+                                '&:hover': {
+                                    color: 'primary.light',
+                                    borderColor: 'primary.main',
+                                },
+                            }}
+                        >
+                            <CollectionsIcon sx={{ fontSize: 11 }} />
+                            <Typography variant="caption" sx={{ fontSize: '0.65rem' }}>
+                                view gallery
+                            </Typography>
+                        </Box>
+                    )}
+                </Box>
                 {loading ? (
                     <CircularProgress size={14} sx={{ color: 'primary.main' }} />
                 ) : (

@@ -5,6 +5,7 @@ import Portfolio from './pages/portfolio/index.jsx';
 import TokenDetail from "./components/tokens/TokenDetail.jsx";
 import Collections from './pages/collections/index.jsx';
 import NatDistribution from "./pages/nat/index.jsx";
+import CollectionGallery from "./pages/collectionGallery/index.jsx";
 
 const App = () => (
     <BrowserRouter>
@@ -15,6 +16,7 @@ const App = () => (
                 <Route path="/sync" element={<SyncStatus />} />
                 <Route path="/nat" element={<NatDistribution />} />
                 <Route path="/collections" element={<Collections />} />
+                <Route path="/collection/:ticker" element={<CollectionGallery />} />
                 <Route path="/blocks" element={<div style={{ color: '#9b8ab4' }}>Blocks — coming soon</div>} />
                 <Route path="/pools" element={<div style={{ color: '#9b8ab4' }}>Pool Rankings — coming soon</div>} />
                 <Route path="/perblock" element={<div style={{ color: '#9b8ab4' }}>Per Block — coming soon</div>} />
