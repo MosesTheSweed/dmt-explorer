@@ -82,19 +82,25 @@ const TokenDetail = () => {
     };
 
     const externalLinks = [
-        {
-            label: 'ordinals.com',
-            href: `https://ordinals.com/inscription/${inscriptionId}`,
-        },
-        {
-            label: 'unisat.io',
-            href: `https://unisat.io/brc20/${decodedTicker}`,
+        decodedTicker === 'dmt-nat' && {
+            label: 'natgmi.com',
+            href: 'https://natgmi.com',
         },
         {
             label: 'trac.network',
-            href: `https://trac.network`,
+            href: 'https://trac.network',
         },
-    ].filter(l => l.href);
+        inscriptionId && {
+            label: 'ordinals.com',
+            href: isDmt && deployment?.elem
+                ? `https://ordinals.com/inscription/${deployment.elem}`
+                : `https://ordinals.com/inscription/${inscriptionId}`,
+        },
+        {
+            label: 'unisat.io',
+            href: `https://unisat.io/brc20/${encodeURIComponent(decodedTicker)}`,
+        },
+    ].filter(Boolean);
 
     if (deployLoading) {
         return (
