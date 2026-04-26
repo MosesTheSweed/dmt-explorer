@@ -28,6 +28,10 @@ const theme = createTheme({
             light: '#4ade80',
             dark: '#16a34a',
         },
+        border: {
+            subtle: '#2e2845',
+            medium: 'rgba(168,85,247,0.3)',
+        },
         error: { main: '#f87171' },
         warning: { main: '#f97316' },
         info: { main: '#c084fc' },
@@ -55,6 +59,20 @@ const theme = createTheme({
     components: {
         MuiCssBaseline: {
             styleOverrides: {
+                ':root': {
+                    '--tint-purple-xs': 'rgba(168,85,247,0.05)',
+                    '--tint-purple-sm': 'rgba(168,85,247,0.08)',
+                    '--tint-purple-md': 'rgba(168,85,247,0.12)',
+                    '--tint-purple-lg': 'rgba(168,85,247,0.15)',
+                    '--tint-purple-xl': 'rgba(168,85,247,0.22)',
+                    '--tint-orange-xs': 'rgba(249,115,22,0.04)',
+                    '--tint-orange-sm': 'rgba(249,115,22,0.05)',
+                    '--tint-orange-md': 'rgba(249,115,22,0.12)',
+                    '--tint-orange-lg': 'rgba(249,115,22,0.15)',
+                    '--tint-green-xs': 'rgba(34,197,94,0.05)',
+                    '--tint-green-md': 'rgba(34,197,94,0.12)',
+                    '--border-subtle': '#2e2845',
+                },
                 body: {
                     backgroundColor: '#16131f',
                     scrollbarColor: '#2e2845 #16131f',
@@ -90,11 +108,11 @@ const theme = createTheme({
                     borderRadius: '0 8px 8px 0',
                     marginRight: '8px',
                     '&.Mui-selected': {
-                        backgroundColor: 'rgba(168,85,247,0.08)',
-                        borderLeft: '2px solid #a855f7',
-                        '&:hover': { backgroundColor: 'rgba(168,85,247,0.12)' },
+                        backgroundColor: 'var(--tint-purple-sm)',
+                        borderLeft: '2px solid primary.main',
+                        '&:hover': { backgroundColor: 'var(--tint-purple-md)' },
                     },
-                    '&:hover': { backgroundColor: 'rgba(168,85,247,0.05)' },
+                    '&:hover': { backgroundColor: 'var(--tint-purple-xs)' },
                 },
             },
         },

@@ -30,12 +30,12 @@ const ExternalLink = ({ href, label }) => (
             size="small"
             onClick={() => window.open(href, '_blank')}
             sx={{
-                border: '0.5px solid #2e2845',
+                border: '0.5px solid var(--border-subtle)',
                 borderRadius: 1,
                 px: 1,
                 py: 0.5,
                 gap: 0.5,
-                '&:hover': { borderColor: 'primary.main', backgroundColor: 'rgba(168,85,247,0.08)' },
+                '&:hover': { borderColor: 'primary.main', backgroundColor: 'var(--tint-purple-sm)' },
             }}
         >
             <Typography variant="caption" sx={{ color: 'text.secondary' }}>{label}</Typography>
@@ -128,14 +128,14 @@ const TokenDetail = () => {
                 {isDmt && (
                     <Chip label="DMT" size="small" sx={{
                         height: 18, fontSize: '0.65rem',
-                        backgroundColor: 'rgba(168,85,247,0.15)',
+                        backgroundColor: 'var(--tint-purple-lg)',
                         color: 'primary.light',
                     }} />
                 )}
                 {!isDmt && (
                     <Chip label="fungible" size="small" sx={{
                         height: 18, fontSize: '0.65rem',
-                        backgroundColor: 'rgba(249,115,22,0.15)',
+                        backgroundColor: 'var(--tint-orange-lg)',
                         color: 'secondary.main',
                     }} />
                 )}
@@ -278,7 +278,7 @@ const TokenDetail = () => {
                                     alignItems: 'center',
                                     px: 2,
                                     py: 1,
-                                    '&:hover': { backgroundColor: 'rgba(168,85,247,0.05)', cursor: 'pointer' },
+                                    '&:hover': { backgroundColor: 'var(--tint-purple-xs)', cursor: 'pointer' },
                                 }}
                                 onClick={() => navigate(`/portfolio?address=${holder.address}`)}
                             >
@@ -306,7 +306,7 @@ const TokenDetail = () => {
                                 </Typography>
                             </Box>
                             {i < Math.min(holders.length, 20) - 1 && (
-                                <Divider sx={{ borderColor: '#2e2845' }} />
+                                <Divider sx={{ borderColor: 'var(--border-subtle)' }} />
                             )}
                         </Box>
                     ))}

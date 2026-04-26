@@ -32,8 +32,8 @@ const TokenCard = ({ ticker, address }) => {
                 cursor: 'pointer',
                 transition: 'border-color 0.15s, background-color 0.15s',
                 '&:hover': {
-                    borderColor: '#a855f7',
-                    backgroundColor: 'rgba(168,85,247,0.05)',
+                    borderColor: 'primary.main !important',
+                    backgroundColor: 'var(--tint-purple-sx)',
                 },
             }}
         >
@@ -50,14 +50,14 @@ const TokenCard = ({ ticker, address }) => {
                     {isDmt && (
                         <Chip label="DMT" size="small" sx={{
                             height: 16, fontSize: '0.6rem',
-                            backgroundColor: 'rgba(168,85,247,0.15)',
+                            backgroundColor: 'var(--tint-purple-lg)',
                             color: 'primary.light',
                         }} />
                     )}
                     { !isDmt && (
                         <Chip label="fungible" size="small" sx={{
                             height: 16, fontSize: '0.6rem',
-                            backgroundColor: 'rgba(249,115,22,0.15)',
+                            backgroundColor: 'var(--tint-orange-lg)',
                             color: 'secondary.main',
                         }} />
                     )}

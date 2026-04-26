@@ -48,8 +48,8 @@ const CollectionCard = ({ ticker }) => {
                 cursor: 'pointer',
                 transition: 'border-color 0.15s, background-color 0.15s',
                 '&:hover': {
-                    borderColor: '#f97316',
-                    backgroundColor: 'rgba(249,115,22,0.04)',
+                    borderColor: 'secondary.main !important',
+                    backgroundColor: 'var(--tint-orange-xs) !important',
                 },
             }}
         >
@@ -72,7 +72,7 @@ const CollectionCard = ({ ticker }) => {
                         sx={{
                             height: 16,
                             fontSize: '0.6rem',
-                            backgroundColor: 'rgba(34,197,94,0.12)',
+                            backgroundColor: 'var(--tint-green-md)',
                             color: 'success.main',
                             flexShrink: 0,
                         }}
@@ -115,7 +115,7 @@ const CollectionCard = ({ ticker }) => {
                     size="small"
                     sx={{
                         height: 16, fontSize: '0.6rem',
-                        backgroundColor: 'rgba(168,85,247,0.15)',
+                        backgroundColor: 'var(--tint-purple-lg)',
                         color: 'primary.light',
                     }}
                 />
@@ -125,7 +125,7 @@ const CollectionCard = ({ ticker }) => {
                         size="small"
                         sx={{
                             height: 16, fontSize: '0.6rem',
-                            backgroundColor: 'rgba(168,85,247,0.08)',
+                            backgroundColor: 'var(--tint-purple-sm)',
                             color: 'text.disabled',
                         }}
                     />
@@ -176,7 +176,7 @@ const Collections = () => {
                         label={`${DMT_TICKERS.length} collections`}
                         size="small"
                         sx={{
-                            backgroundColor: 'rgba(249,115,22,0.12)',
+                            backgroundColor: 'var(--tint-orange-md)',
                             color: 'secondary.main',
                             fontSize: '0.7rem',
                         }}
@@ -194,7 +194,7 @@ const Collections = () => {
                         width: 280,
                         '& .MuiOutlinedInput-root': {
                             backgroundColor: 'background.paper',
-                            '& fieldset': { borderColor: '#2e2845' },
+                            '& fieldset': { borderColor: 'var(--border-subtle)' },
                             '&:hover fieldset': { borderColor: 'primary.dark' },
                             '&.Mui-focused fieldset': { borderColor: 'primary.main' },
                         },
@@ -225,11 +225,11 @@ const Collections = () => {
                         ].map(opt => (
                             <ToggleButton key={opt.value} value={opt.value} sx={{
                                 py: 0.25, px: 1, fontSize: '0.7rem',
-                                color: 'text.secondary', borderColor: '#2e2845',
+                                color: 'text.secondary', borderColor: 'var(--border-subtle)',
                                 '&.Mui-selected': {
-                                    backgroundColor: 'rgba(249,115,22,0.15)',
+                                    backgroundColor: 'var(--tint-orange-md) !important',
                                     color: 'secondary.main',
-                                    borderColor: '#f97316',
+                                    borderColor: 'secondary.main',
                                 },
                             }}>
                                 {opt.label}
@@ -274,8 +274,8 @@ const Collections = () => {
                                     onClick={() => setVisibleCount(v => v + 48)}
                                     sx={{
                                         background: 'rgba(168,85,247,0.1)',
-                                        border: '0.5px solid #a855f7',
-                                        color: '#c084fc',
+                                        border: '0.5px solid primary.main',
+                                        color: 'primary.light',
                                         px: 3,
                                         py: 1,
                                         borderRadius: 2,

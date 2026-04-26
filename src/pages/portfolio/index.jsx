@@ -56,7 +56,7 @@ const Portfolio = () => {
                     width: 480,
                     '& .MuiOutlinedInput-root': {
                         backgroundColor: 'background.paper',
-                        '& fieldset': { borderColor: '#2e2845' },
+                        '& fieldset': { borderColor: 'var(--mui-palette-divider)' },
                         '&:hover fieldset': { borderColor: 'primary.dark' },
                         '&.Mui-focused fieldset': { borderColor: 'primary.main' },
                     },

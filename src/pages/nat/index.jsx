@@ -34,7 +34,7 @@ const BlockEventRow = ({event, index}) => {
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 px: 2, py: 1,
-                '&:hover': {backgroundColor: 'rgba(168,85,247,0.05)', cursor: 'pointer'},
+                '&:hover': {backgroundColor: 'var(--tint-purple-xs)', cursor: 'pointer'},
             }}
                  onClick={() => navigate(`/portfolio?address=${event.ownr}`)}
             >
@@ -55,7 +55,7 @@ const BlockEventRow = ({event, index}) => {
                             {poolName && (
                                 <Chip label={poolName} size="small" sx={{
                                     height: 14, fontSize: '0.55rem', flexShrink: 0,
-                                    backgroundColor: 'rgba(34,197,94,0.12)',
+                                    backgroundColor: 'var(--tint-green-md)',
                                     color: 'success.main',
                                 }}/>
                             )}
@@ -63,7 +63,7 @@ const BlockEventRow = ({event, index}) => {
                         <Box sx={{display: 'flex', gap: 1, mt: 0.25}}>
                             <Chip label={event.tick} size="small" sx={{
                                 height: 14, fontSize: '0.55rem',
-                                backgroundColor: 'rgba(168,85,247,0.15)',
+                                backgroundColor: 'var(--tint-purple-lg)',
                                 color: 'primary.light',
                             }}/>
                             <Typography variant="caption" sx={{color: 'text.disabled', fontSize: '0.65rem'}}>
@@ -79,7 +79,7 @@ const BlockEventRow = ({event, index}) => {
                     {natVal}
                 </Typography>
             </Box>
-            <Divider sx={{borderColor: '#2e2845'}}/>
+            <Divider sx={{borderColor: 'var(--border-subtle)'}}/>
         </Box>
     );
 };
@@ -116,8 +116,8 @@ const RecentBlockEvents = ({block}) => {
             <Box sx={{display: 'flex', gap: 2, mb: 2, flexWrap: 'wrap'}}>
                 <Box sx={{
                     px: 1.5, py: 1,
-                    backgroundColor: 'rgba(168,85,247,0.05)',
-                    border: '0.5px solid #2e2845',
+                    backgroundColor: 'var(--tint-purple-sx)',
+                    border: '0.5px solid var(--border-subtle)',
                     borderRadius: 1,
                 }}>
                     <Typography variant="caption" sx={{color: 'text.disabled', display: 'block'}}>
@@ -129,8 +129,8 @@ const RecentBlockEvents = ({block}) => {
                 </Box>
                 <Box sx={{
                     px: 1.5, py: 1,
-                    backgroundColor: 'rgba(249,115,22,0.05)',
-                    border: '0.5px solid #2e2845',
+                    backgroundColor: 'var(--tint-orange-sm)',
+                    border: '0.5px solid var(--border-subtle)',
                     borderRadius: 1,
                 }}>
                     <Typography variant="caption" sx={{color: 'text.disabled', display: 'block'}}>
@@ -142,8 +142,8 @@ const RecentBlockEvents = ({block}) => {
                 </Box>
                 <Box sx={{
                     px: 1.5, py: 1,
-                    backgroundColor: 'rgba(34,197,94,0.05)',
-                    border: '0.5px solid #2e2845',
+                    backgroundColor: 'var(--tint-green-xs)',
+                    border: '0.5px solid var(--border-subtle)',
                     borderRadius: 1,
                 }}>
                     <Typography variant="caption" sx={{color: 'text.disabled', display: 'block'}}>
@@ -159,7 +159,7 @@ const RecentBlockEvents = ({block}) => {
                 {tickers.map(t => (
                     <Chip key={t} label={t} size="small" sx={{
                         height: 18, fontSize: '0.65rem',
-                        backgroundColor: 'rgba(168,85,247,0.12)',
+                        backgroundColor: 'var(--tint-purple-md)',
                         color: 'primary.light',
                     }}/>
                 ))}
@@ -221,7 +221,7 @@ const NatDistribution = () => {
                 <BarChartIcon sx={{ color: 'primary.main' }} />
                 <Typography variant="h2">NAT distribution</Typography>
                 <Chip label="post-885,588" size="small" sx={{
-                    backgroundColor: 'rgba(249,115,22,0.12)',
+                    backgroundColor: 'var(--tint-orange-md)',
                     color: 'secondary.main', fontSize: '0.7rem',
                 }} />
             </Box>
@@ -252,8 +252,8 @@ const NatDistribution = () => {
                             onClick={() => handleSelectBlock(block)}
                             sx={{
                                 px: 1.5, py: 0.5, borderRadius: 1, cursor: 'pointer',
-                                border: `0.5px solid ${selectedBlock === block ? '#f97316' : '#2e2845'}`,
-                                backgroundColor: selectedBlock === block ? 'rgba(249,115,22,0.12)' : 'transparent',
+                                border: `0.5px solid ${selectedBlock === block ? 'secondary.main' : 'var(--border-subtle)'}`,
+                                backgroundColor: selectedBlock === block ? 'var(--tint-orange-md)' : 'transparent',
                             }}
                         >
                             <Typography variant="caption" sx={{
@@ -280,8 +280,8 @@ const NatDistribution = () => {
                             onClick={() => handleSelectBlock(block)}
                             sx={{
                                 px: 1.5, py: 0.5, borderRadius: 1, cursor: 'pointer',
-                                border: `0.5px solid ${selectedBlock === block ? '#a855f7' : '#2e2845'}`,
-                                backgroundColor: selectedBlock === block ? 'rgba(168,85,247,0.12)' : 'transparent',
+                                border: `0.5px solid ${selectedBlock === block ? 'primary.main' : 'var(--border-subtle)'}`,
+                                backgroundColor: selectedBlock === block ? 'var(--tint-purple-md)' : 'transparent',
                             }}
                         >
                             <Typography variant="caption" sx={{

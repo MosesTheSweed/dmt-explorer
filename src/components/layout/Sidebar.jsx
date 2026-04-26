@@ -14,7 +14,7 @@ const DRAWER_WIDTH = 220;
 const NAV_SECTIONS = [
     {
         groupKey: 'nav.overview',
-        accent: '#a855f7',
+        accent: 'primary.main',
         items: [
             { path: '/nat', labelKey: 'nav.natDistribution', icon: <BarChartIcon fontSize="small" /> },
             { path: '/portfolio', labelKey: 'nav.myPortfolio', icon: <AccountBalanceWalletIcon fontSize="small" /> },
@@ -23,7 +23,7 @@ const NAV_SECTIONS = [
     },
     {
         groupKey: 'nav.collections',
-        accent: '#f97316',
+        accent: 'secondary.main',
         items: [
             { path: '/collections', labelKey: 'nav.collections', icon: <CollectionsIcon fontSize="small" /> },
             { path: '/blocks', labelKey: 'nav.blocks', icon: <GridViewIcon fontSize="small" /> },
@@ -31,7 +31,7 @@ const NAV_SECTIONS = [
     },
     {
         groupKey: 'nav.miners',
-        accent: '#22c55e',
+        accent: 'success.main',
         items: [
             { path: '/pools', labelKey: 'nav.poolRankings', icon: <MemoryIcon fontSize="small" /> },
             { path: '/perblock', labelKey: 'nav.perBlock', icon: <DashboardIcon fontSize="small" /> },
@@ -45,7 +45,7 @@ const Sidebar = () => {
     const location = useLocation();
 
     const activeAccent = NAV_SECTIONS
-        .find(s => s.items.some(i => location.pathname.startsWith(i.path)))?.accent ?? '#a855f7';
+        .find(s => s.items.some(i => location.pathname.startsWith(i.path)))?.accent ?? 'primary.main';
 
     return (
         <Drawer
@@ -56,15 +56,15 @@ const Sidebar = () => {
                 '& .MuiDrawer-paper': { width: DRAWER_WIDTH, boxSizing: 'border-box' },
             }}
         >
-            <Box sx={{ px: 2, py: 2, borderBottom: '0.5px solid #2e2845' }}>
+            <Box sx={{ px: 2, py: 2, borderBottom: '0.5px solid var(--border-subtle)' }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <Typography variant="h3" sx={{ color: 'text.primary' }}>
-                        DMT <span style={{ color: '#f97316' }}>Explorer</span>
+                        DMT <span style={{ color: 'secondary.main' }}>Explorer</span>
                     </Typography>
                     <Box sx={{
                         width: 6, height: 6, borderRadius: '50%',
-                        backgroundColor: '#22c55e',
-                        boxShadow: '0 0 6px #22c55e',
+                        backgroundColor: 'success.main',
+                        boxShadow: '0 0 6px success.main',
                         flexShrink: 0, mb: -0.5,
                     }} />
                 </Box>
@@ -127,7 +127,7 @@ const Sidebar = () => {
 
             <Box sx={{
                 mt: 'auto', px: 2, py: 1.5,
-                borderTop: '0.5px solid #2e2845',
+                borderTop: '0.5px solid var(--border-subtle)',
                 display: 'flex', alignItems: 'center', gap: 1,
             }}>
                 <Box sx={{

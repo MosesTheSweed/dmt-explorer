@@ -15,11 +15,11 @@ const FILTER_OPTIONS = [
 
 const toggleSx = {
     py: 0.25, px: 1, fontSize: '0.7rem',
-    color: 'text.secondary', borderColor: '#2e2845',
+    color: 'text.secondary', borderColor: 'var(--border-subtle)',
     '&.Mui-selected': {
-        backgroundColor: 'rgba(168,85,247,0.15)',
+        backgroundColor: 'var(--tint-purple-lg)',
         color: 'primary.light',
-        borderColor: '#a855f7',
+        borderColor: 'primary.main',
     },
 };
 
@@ -33,8 +33,8 @@ const WalletHeader = ({ tokens, filter, onFilter, sort, onSort, displayCount }) 
             justifyContent: 'space-between',
             alignItems: 'center',
             mb: 2, p: 1.5,
-            backgroundColor: 'rgba(168,85,247,0.05)',
-            border: '0.5px solid #2e2845',
+            backgroundColor: 'var(--tint-purple-xs)',
+            border: '0.5px solid var(--border-subtle)',
             borderRadius: 2,
             flexWrap: 'wrap',
             gap: 2,
@@ -49,7 +49,7 @@ const WalletHeader = ({ tokens, filter, onFilter, sort, onSort, displayCount }) 
                         {tokens?.length ?? 0}
                     </Typography>
                 </Box>
-                <Divider orientation="vertical" flexItem sx={{ borderColor: '#2e2845' }} />
+                <Divider orientation="vertical" flexItem sx={{ borderColor: 'var(--border-subtle)' }} />
                 <Box>
                     <Typography variant="overline" sx={{ display: 'block', lineHeight: 1.2 }}>
                         DMT
@@ -58,7 +58,7 @@ const WalletHeader = ({ tokens, filter, onFilter, sort, onSort, displayCount }) 
                         {dmtCount}
                     </Typography>
                 </Box>
-                <Divider orientation="vertical" flexItem sx={{ borderColor: '#2e2845' }} />
+                <Divider orientation="vertical" flexItem sx={{ borderColor: 'var(--border-subtle)' }} />
                 <Box>
                     <Typography variant="overline" sx={{ display: 'block', lineHeight: 1.2 }}>
                         Fungible
@@ -69,7 +69,7 @@ const WalletHeader = ({ tokens, filter, onFilter, sort, onSort, displayCount }) 
                 </Box>
                 {displayCount !== undefined && displayCount < (tokens?.length ?? 0) && (
                     <>
-                        <Divider orientation="vertical" flexItem sx={{ borderColor: '#2e2845' }} />
+                        <Divider orientation="vertical" flexItem sx={{ borderColor: 'var(--border-subtle)' }} />
                         <Typography variant="caption" sx={{ color: 'text.disabled' }}>
                             {displayCount} shown
                         </Typography>

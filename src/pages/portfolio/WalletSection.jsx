@@ -74,11 +74,11 @@ const WalletSection = ({ label, address, pinned = [] }) => {
                         onClick={() => setHistoryOpen(true)}
                         sx={{
                             height: 18, fontSize: '0.65rem', cursor: 'pointer',
-                            backgroundColor: 'rgba(168,85,247,0.12)',
+                            backgroundColor: 'var(--tint-purple-md)',
                             color: 'primary.light',
                             border: '0.5px solid rgba(168,85,247,0.3)',
                             '&:hover': {
-                                backgroundColor: 'rgba(168,85,247,0.22)',
+                                backgroundColor: 'var(--tint-purple-xl) !important',
                                 borderColor: 'primary.light',
                             },
                         }}
@@ -155,7 +155,7 @@ const WalletSection = ({ label, address, pinned = [] }) => {
                     paper: {
                         sx: {
                             backgroundColor: 'background.paper',
-                            border: '0.5px solid #2e2845',
+                            border: '0.5px solid var(--border-subtle)',
                             backgroundImage: 'none',
                         }
                     }
@@ -163,13 +163,13 @@ const WalletSection = ({ label, address, pinned = [] }) => {
             >
                 <DialogTitle sx={{
                     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                    borderBottom: '0.5px solid #2e2845', pb: 1.5,
+                    borderBottom: '0.5px solid var(--border-subtle)', pb: 1.5,
                 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <Typography variant="h3">Mint history</Typography>
                         <Chip label={mintCount} size="small" sx={{
                             height: 18, fontSize: '0.65rem',
-                            backgroundColor: 'rgba(168,85,247,0.12)',
+                            backgroundColor: 'var(--tint-purple-md)',
                             color: 'primary.light',
                         }} />
                     </Box>

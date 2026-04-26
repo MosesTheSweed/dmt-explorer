@@ -29,15 +29,15 @@ const SyncStatus = () => {
 
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}>
                     <Typography variant="body2">
-                        <span style={{ color: '#b8a8cc' }}>Index ratio:</span>{' '}
-                        <span style={{ color: '#e8d5ff' }}>{syncPct?.toFixed(4)}</span>{' '}
-                        <span style={{ color: '#6b5f8a' }}>
+                        <span style={{ color: 'text.secondary' }}>Index ratio:</span>{' '}
+                        <span style={{ color: 'text.primary' }}>{syncPct?.toFixed(4)}</span>{' '}
+                        <span style={{ color: 'text.disabled' }}>
                             {isFullyCovered ? '— full coverage' : '— indexing in progress'}
                         </span>
                     </Typography>
                     <Typography variant="body2">
-                        <span style={{ color: '#b8a8cc' }}>Raw Hypercore chunks:</span>{' '}
-                        <span style={{ color: '#e8d5ff' }}>~0.9% of 637M chunks</span>
+                        <span style={{ color: 'text.secondary' }}>Raw Hypercore chunks:</span>{' '}
+                        <span style={{ color: 'text.primary' }}>~0.9% of 637M chunks</span>
                     </Typography>
                     <Typography variant="body2" sx={{ mt: 1, color: 'text.disabled', fontSize: '0.75rem' }}>
                         The index ratio measures queryable TAP protocol state — values above 1.0

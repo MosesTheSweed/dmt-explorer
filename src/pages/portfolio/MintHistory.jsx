@@ -46,20 +46,20 @@ const MintHistoryRow = ({ inscriptionId, index }) => {
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                             <Chip label={mint.tick} size="small" sx={{
                                 height: 14, fontSize: '0.55rem',
-                                backgroundColor: 'rgba(168,85,247,0.15)',
+                                backgroundColor: 'var(--tint-purple-lg)',
                                 color: 'primary.light',
                             }} />
                             {mint.elem?.pat && (
                                 <Chip label={`pattern: ${mint.elem.pat}`} size="small" sx={{
                                     height: 14, fontSize: '0.55rem',
-                                    backgroundColor: 'rgba(34,197,94,0.12)',
+                                    backgroundColor: 'var(--tint-green-md)',
                                     color: 'success.main',
                                 }} />
                             )}
                             {!isCurrentOwner && (
                                 <Chip label="transferred" size="small" sx={{
                                     height: 14, fontSize: '0.55rem',
-                                    backgroundColor: 'rgba(249,115,22,0.12)',
+                                    backgroundColor: 'var(--tint-orange-md)',
                                     color: 'secondary.main',
                                 }} />
                             )}
@@ -78,7 +78,7 @@ const MintHistoryRow = ({ inscriptionId, index }) => {
                     #{mint.num?.toLocaleString()}
                 </Typography>
             </Box>
-            <Divider sx={{ borderColor: '#2e2845' }} />
+            <Divider sx={{ borderColor: 'var(--border-subtle)' }} />
         </Box>
     );
 };
@@ -115,7 +115,7 @@ const MintHistory = ({ address, modal = false }) => {
                             sx={{
                                 p: 1.5, textAlign: 'center', cursor: 'pointer',
                                 color: 'primary.light', fontSize: '0.8rem',
-                                '&:hover': { backgroundColor: 'rgba(168,85,247,0.05)' },
+                                '&:hover': { backgroundColor: 'var(--tint-purple-xs)' },
                             }}
                         >
                             Load more ({inscriptions.length - visibleCount} remaining)
@@ -144,7 +144,7 @@ const MintHistory = ({ address, modal = false }) => {
                     </Typography>
                     <Chip label={length} size="small" sx={{
                         height: 18, fontSize: '0.65rem',
-                        backgroundColor: 'rgba(168,85,247,0.12)',
+                        backgroundColor: 'var(--tint-purple-md)',
                         color: 'primary.light',
                     }} />
                 </Box>
