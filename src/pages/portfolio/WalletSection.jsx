@@ -1,26 +1,13 @@
 import { useState } from 'react';
-import { Box, Typography, Grid, CircularProgress, Tooltip, IconButton, ToggleButton, ToggleButtonGroup } from '@mui/material';
+import { Box, Typography, Grid, CircularProgress, Tooltip, IconButton } from '@mui/material';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import SortByAlphaIcon from '@mui/icons-material/SortByAlpha';
 import { useTranslation } from 'react-i18next';
 import { useTracApi } from '../../hooks/useTracApi';
 import api from '../../api/tracApi';
 import TokenCard from '../../components/tokens/TokenCard';
-import WalletSummary from './WalletSummary';
+import WalletHeader from './WalletHeader.jsx';
 import { PINNED_TOKENS } from './constants';
-
-const SORT_OPTIONS = [
-    { value: 'name', label: 'A–Z' },
-    { value: 'name-desc', label: 'Z–A' },
-    { value: 'dmt-first', label: 'DMT first' },
-];
-
-const FILTER_OPTIONS = [
-    { value: 'all', label: 'All' },
-    { value: 'dmt', label: 'DMT' },
-    { value: 'fungible', label: 'Fungible' },
-];
 
 const applyFilterAndSort = (tokens, filter, sort) => {
     if (!tokens) return [];
@@ -42,7 +29,6 @@ const applyFilterAndSort = (tokens, filter, sort) => {
 
     return result;
 };
-
 const WalletSection = ({ label, address, pinned = [] }) => {
     const [copied, setCopied] = useState(false);
     const [filter, setFilter] = useState('all');
@@ -86,85 +72,15 @@ const WalletSection = ({ label, address, pinned = [] }) => {
                 </Tooltip>
             </Box>
 
-            {allTokens && <WalletSummary tokens={allTokens} />}
-
-            {/* Filter and sort controls */}
-            {allTokens && allTokens.length > 0 && (
-                <Box sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 2,
-                    mb: 2,
-                    flexWrap: 'wrap',
-                }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Typography variant="caption" sx={{ color: 'text.disabled' }}>
-                            Filter:
-                        </Typography>
-                        <ToggleButtonGroup
-                            value={filter}
-                            exclusive
-                            onChange={(_, val) => val && setFilter(val)}
-                            size="small"
-                        >
-                            {FILTER_OPTIONS.map(opt => (
-                                <ToggleButton
-                                    key={opt.value}
-                                    value={opt.value}
-                                    sx={{
-                                        py: 0.25,
-                                        px: 1,
-                                        fontSize: '0.7rem',
-                                        color: 'text.secondary',
-                                        borderColor: '#2e2845',
-                                        '&.Mui-selected': {
-                                            backgroundColor: 'rgba(168,85,247,0.15)',
-                                            color: 'primary.light',
-                                            borderColor: '#a855f7',
-                                        },
-                                    }}
-                                >
-                                    {opt.label}
-                                </ToggleButton>
-                            ))}
-                        </ToggleButtonGroup>
-                    </Box>
-
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <SortByAlphaIcon sx={{ fontSize: 14, color: 'text.disabled' }} />
-                        <ToggleButtonGroup
-                            value={sort}
-                            exclusive
-                            onChange={(_, val) => val && setSort(val)}
-                            size="small"
-                        >
-                            {SORT_OPTIONS.map(opt => (
-                                <ToggleButton
-                                    key={opt.value}
-                                    value={opt.value}
-                                    sx={{
-                                        py: 0.25,
-                                        px: 1,
-                                        fontSize: '0.7rem',
-                                        color: 'text.secondary',
-                                        borderColor: '#2e2845',
-                                        '&.Mui-selected': {
-                                            backgroundColor: 'rgba(168,85,247,0.15)',
-                                            color: 'primary.light',
-                                            borderColor: '#a855f7',
-                                        },
-                                    }}
-                                >
-                                    {opt.label}
-                                </ToggleButton>
-                            ))}
-                        </ToggleButtonGroup>
-                    </Box>
-
-                    <Typography variant="caption" sx={{ color: 'text.disabled', ml: 'auto' }}>
-                        {displayTokens.length} of {allTokens.length}
-                    </Typography>
-                </Box>
+            {allTokens && (
+                <WalletHeader
+                    tokens={allTokens}
+                    filter={filter}
+                    onFilter={setFilter}
+                    sort={sort}
+                    onSort={setSort}
+                    displayCount={displayTokens.length}
+                />
             )}
 
             {loading && (
