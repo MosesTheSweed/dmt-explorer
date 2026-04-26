@@ -86,10 +86,6 @@ const TokenDetail = () => {
             label: 'natgmi.com',
             href: 'https://natgmi.com',
         },
-        decodedTicker === 'dmt-nat' && {
-            label: 'mscribe.io',
-            href: 'https://mscribe.io/nats',
-        },
         {
             label: 'trac.network',
             href: 'https://trac.network',
@@ -103,6 +99,10 @@ const TokenDetail = () => {
         {
             label: 'unisat.io',
             href: `https://unisat.io/brc20/${encodeURIComponent(decodedTicker)}`,
+        },
+        decodedTicker === 'dmt-nat' && {
+            label: 'mscribe.io',
+            href: 'https://mscribe.io/nats',
         },
     ].filter(Boolean);
 
