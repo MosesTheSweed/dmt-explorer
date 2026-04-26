@@ -54,7 +54,7 @@ const TokenCard = ({ ticker, address }) => {
                             color: 'primary.light',
                         }} />
                     )}
-                    {dec === 0 && !isDmt && (
+                    { !isDmt && (
                         <Chip label="fungible" size="small" sx={{
                             height: 16, fontSize: '0.6rem',
                             backgroundColor: 'rgba(249,115,22,0.15)',
