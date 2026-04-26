@@ -1,26 +1,27 @@
-import { Box, Typography, Paper, Chip, CircularProgress } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-import { useTracApi } from '../../hooks/useTracApi';
-import api, { formatBalance } from '../../api/tracApi';
+import {Box, Typography, Paper, Chip, CircularProgress} from '@mui/material';
+import {useNavigate} from 'react-router-dom';
+import {useTracApi} from '../../hooks/useTracApi';
+import api, {formatBalance} from '../../api/tracApi';
+import NatcatRenderer from "./NatcatRenderer.jsx";
 
-const TokenCard = ({ ticker, address }) => {
+const TokenCard = ({ticker, address}) => {
     const navigate = useNavigate();
-    const { data: deployment } = useTracApi(() => api.getDeployment(ticker), [ticker]);
-    const { data: balance, loading } = useTracApi(
+    const {data: deployment} = useTracApi(() => api.getDeployment(ticker), [ticker]);
+    const {data: balance, loading} = useTracApi(
         () => api.getBalance(address, ticker), [address, ticker]
     );
-    const { data: holdersLen } = useTracApi(
+    const {data: holdersLen} = useTracApi(
         () => api.getHoldersLength(ticker), [ticker]
     );
 
     const dec = deployment?.dec ?? 0;
     const isDmt = deployment?.dmt === true;
-    const formatted = (balance !== null && balance !== undefined)
+    const formattedBalance = (balance !== null && balance !== undefined)
         ? formatBalance(String(balance), dec)
         : null;
 
     const fieldLabel = deployment?.dt
-        ? ({ n: 'nonce', h: 'block height', b: 'bits' }[deployment.dt] ?? deployment.dt)
+        ? ({n: 'nonce', h: 'block height', b: 'bits'}[deployment.dt] ?? deployment.dt)
         : null;
 
     return (
@@ -37,7 +38,7 @@ const TokenCard = ({ ticker, address }) => {
                 },
             }}
         >
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+            <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1}}>
                 <Typography sx={{
                     fontFamily: 'monospace',
                     color: 'primary.light',
@@ -46,44 +47,64 @@ const TokenCard = ({ ticker, address }) => {
                 }}>
                     {ticker}
                 </Typography>
-                <Box sx={{ display: 'flex', gap: 0.5 }}>
+                <Box sx={{display: 'flex', gap: 0.5}}>
                     {isDmt && (
                         <Chip label="DMT" size="small" sx={{
                             height: 16, fontSize: '0.6rem',
                             backgroundColor: 'var(--tint-purple-lg)',
                             color: 'primary.light',
-                        }} />
+                        }}/>
                     )}
-                    { !isDmt && (
+                    {!isDmt && (
                         <Chip label="fungible" size="small" sx={{
                             height: 16, fontSize: '0.6rem',
                             backgroundColor: 'var(--tint-orange-lg)',
                             color: 'secondary.main',
-                        }} />
+                        }}/>
                     )}
                 </Box>
             </Box>
 
-            <Box sx={{ my: 1.5 }}>
-                {loading ? (
-                    <CircularProgress size={16} sx={{ color: 'primary.main' }} />
-                ) : formatted !== null ? (
-                    <Typography variant="h4" sx={{ color: 'text.primary', wordBreak: 'break-all' }}>
-                        {formatted}
-                    </Typography>
-                ) : (
-                    <Typography variant="body2" sx={{ color: 'text.disabled', fontStyle: 'italic' }}>
-                        not synced
-                    </Typography>
-                )}
-            </Box>
+            {ticker === 'dmt-natcats' && (
+                <Box sx={{display: 'flex', alignItems: 'center', gap: 1.5, mb: 1}}>
+                    <NatcatRenderer blockNumber={829574} size={64}/>
+                    <Box>
+                        <Typography variant="h3" sx={{color: 'primary.light'}}>
+                            {balance ?? '—'}
+                        </Typography>
+                        <Typography variant="caption" sx={{color: 'text.disabled', display: 'block'}}>
+                            {holdersLen != null ? `${Number(holdersLen).toLocaleString()} holders` : ''}
+                        </Typography>
+                        <Typography variant="caption" sx={{color: 'text.disabled'}}>
+                            block height
+                        </Typography>
+                    </Box>
+                </Box>
+            )}
+            {ticker !== 'dmt-natcats' && (
+                <>
+                    <Box sx={{my: 1.5}}>
+                        {loading ? (
+                            <CircularProgress size={16} sx={{color: 'primary.main'}}/>
+                        ) : formattedBalance !== null ? (
+                            <Typography variant="h4" sx={{color: 'text.primary', wordBreak: 'break-all'}}>
+                                {formattedBalance}
+                            </Typography>
+                        ) : (
+                            <Typography variant="body2" sx={{color: 'text.disabled', fontStyle: 'italic'}}>
+                                not synced
+                            </Typography>
+                        )}
+                    </Box>
 
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Typography variant="caption">
-                    {holdersLen != null ? `${Number(holdersLen).toLocaleString()} holders` : '—'}
-                    {fieldLabel ? ` · ${fieldLabel}` : ''}
-                </Typography>
-            </Box>
+                    <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                        <Typography variant="caption">
+                            {holdersLen != null ? `${Number(holdersLen).toLocaleString()} holders` : '—'}
+                            {fieldLabel ? ` · ${fieldLabel}` : ''}
+                        </Typography>
+                    </Box>
+                </>
+            )}
         </Paper>
     );
 };
